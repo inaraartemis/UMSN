@@ -7,6 +7,7 @@
     <title>Abode · Sign In</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
+    <script src="api-config.js"></script>
     <style>
         *,
         *::before,
@@ -263,8 +264,8 @@
             <div class="fg"><label>Email Address</label><input type="email" id="email" value="admin@hostel.com" /></div>
             <div class="fg"><label>Password</label><input type="password" id="pass" value="admin123" /></div>
             <button class="btn-login" id="loginBtn" onclick="login()">Sign In →</button>
-            <p class="hint">Demo credentials auto-filled &middot; <a
-                    onclick="window.open('http://127.0.0.1:8000/docs')">API Docs ↗</a></p>
+            <p class="hint">Demo credentials auto-filled &middot; <a onclick="window.open(`${BASE_URL}/docs`)">API Docs
+                    ↗</a></p>
         </div>
     </div>
     <script>
@@ -281,7 +282,7 @@
             const err = document.getElementById('errBox');
             err.style.display = 'none'; btn.disabled = true; btn.textContent = 'Signing in...';
             try {
-                const res = await fetch('http://127.0.0.1:8000/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}` });
+                const res = await fetch(`${BASE_URL}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `username=${encodeURIComponent(email)}&password=${encodeURIComponent(pass)}` });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail || 'Login failed');
                 localStorage.setItem('hostel_token', data.access_token);

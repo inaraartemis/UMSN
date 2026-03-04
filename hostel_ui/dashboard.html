@@ -7,6 +7,7 @@
     <title>Abode · Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
+    <script src="api-config.js"></script>
     <style>
         *,
         *::before,
@@ -1386,7 +1387,7 @@
     <div id="tw"></div>
 
     <script>
-        const API = 'http://127.0.0.1:8000';
+        const API = `${BASE_URL}`;
         const token = localStorage.getItem('hostel_token');
         if (!token) location.href = 'index.html';
 
