@@ -16,7 +16,7 @@ services:
         value: Abode Residential
 
   # Frontend Static Site
-  - type: static
+  - type: static_site
     name: abode-ui
     publishDir: hostel_ui
 
