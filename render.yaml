@@ -18,7 +18,6 @@ services:
   # Frontend Static Site
   - type: static
     name: abode-ui
-    env: static
     publishDir: hostel_ui
 
 databases:
