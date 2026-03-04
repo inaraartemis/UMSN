@@ -16,8 +16,9 @@ services:
         value: Abode Residential
 
   # Frontend Static Site
-  - type: static_site
+  - type: web
     name: abode-ui
+    runtime: static
     publishDir: hostel_ui
 
 databases:
