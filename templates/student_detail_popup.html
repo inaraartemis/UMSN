@@ -5,7 +5,7 @@
         </button>
         <h2><i class="fas fa-user-graduate"></i> Student Report</h2>
     </div>
-    
+
     <!-- Student Info Card -->
     <div class="student-info-card">
         <div class="student-avatar-large">
@@ -34,14 +34,14 @@
         </div>
         <div class="cgpa-display">
             <span class="cgpa-label">CGPA</span>
-            <span class="cgpa-value">{{ "%.2f"|format(student.cgpa) }}</span>
+            <span class="cgpa-value">{{ "%.2f"|format(student.cgpa or 0.0) }}</span>
         </div>
     </div>
-    
+
     <!-- Attendance Section -->
     <div class="report-section">
         <h3><i class="fas fa-chart-bar"></i> Attendance Report</h3>
-        
+
         {% if attendance %}
         <div class="attendance-cards">
             {% for att in attendance %}
@@ -51,18 +51,19 @@
                     <span class="subject-code">{{ att.subject_code }}</span>
                 </div>
                 <div class="progress-bar-container">
-                    <div class="progress-bar" style="width: {{ att.percentage }}%; 
+                    <div class="progress-bar"
+                        style="width: {{ att.percentage }}%; 
                         background: {% if att.percentage >= 75 %}#10b981{% elif att.percentage >= 60 %}#f59e0b{% else %}#ef4444{% endif %};">
                     </div>
                 </div>
                 <div class="card-footer">
-                    <span class="percentage">{{ "%.1f"|format(att.percentage) }}%</span>
+                    <span class="percentage">{{ "%.1f"|format(att.percentage or 0.0) }}%</span>
                     <span class="classes">{{ att.attended_classes }}/{{ att.total_classes }} classes</span>
                 </div>
             </div>
             {% endfor %}
         </div>
-        
+
         <div class="attendance-summary">
             <div class="summary-item">
                 <i class="fas fa-calendar-check"></i>
@@ -81,7 +82,8 @@
             <div class="summary-item">
                 <i class="fas fa-percentage"></i>
                 <div>
-                    <strong>{{ "%.1f"|format((attendance|map(attribute='attended_classes')|sum / attendance|map(attribute='total_classes')|sum * 100)) }}%</strong>
+                    <strong>{{ "%.1f"|format((attendance|map(attribute='attended_classes')|sum or 0.0) /
+                        ([attendance|map(attribute='total_classes')|sum, 1]|max) * 100) }}%</strong>
                     <span>Overall Attendance</span>
                 </div>
             </div>
@@ -90,11 +92,11 @@
         <p class="no-data">No attendance records available</p>
         {% endif %}
     </div>
-    
+
     <!-- Assignments Section -->
     <div class="report-section">
         <h3><i class="fas fa-tasks"></i> Assignments Status</h3>
-        
+
         {% if assignments %}
         <div class="assignments-table">
             <table>
@@ -126,7 +128,7 @@
         <p class="no-data">No assignments assigned</p>
         {% endif %}
     </div>
-    
+
     <!-- Action Buttons -->
     <div class="report-actions">
         <button class="btn btn-outline" onclick="window.print()">
@@ -139,252 +141,258 @@
 </div>
 
 <style>
-.popup-container {
-    padding: 20px;
-}
+    .popup-container {
+        padding: 20px;
+    }
 
-.popup-header {
-    margin-bottom: 30px;
-}
+    .popup-header {
+        margin-bottom: 30px;
+    }
 
-.popup-header h2 {
-    margin: 15px 0;
-    color: #333;
-}
+    .popup-header h2 {
+        margin: 15px 0;
+        color: var(--text-primary);
+    }
 
-.student-info-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 30px;
-    border-radius: 10px;
-    display: flex;
-    gap: 25px;
-    align-items: center;
-    margin-bottom: 30px;
-}
+    .student-info-card {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        display: flex;
+        gap: 25px;
+        align-items: center;
+        margin-bottom: 30px;
+        border: 1px solid var(--glass-border);
+    }
 
-.student-avatar-large {
-    width: 100px;
-    height: 100px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 42px;
-    font-weight: bold;
-    flex-shrink: 0;
-}
+    .student-avatar-large {
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
 
-.student-info-details {
-    flex: 1;
-}
+    .student-info-details {
+        flex: 1;
+    }
 
-.student-info-details h3 {
-    font-size: 24px;
-    margin-bottom: 15px;
-}
+    .student-info-details h3 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
 
-.info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
 
-.info-item {
-    display: flex;
-    gap: 10px;
-}
+    .info-item {
+        display: flex;
+        gap: 10px;
+    }
 
-.info-item .label {
-    opacity: 0.9;
-    font-size: 14px;
-}
+    .info-item .label {
+        opacity: 0.9;
+        font-size: 14px;
+    }
 
-.info-item .value {
-    font-weight: 600;
-}
+    .info-item .value {
+        font-weight: 600;
+    }
 
-.cgpa-display {
-    text-align: center;
-    padding: 20px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 10px;
-}
+    .cgpa-display {
+        text-align: center;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+    }
 
-.cgpa-label {
-    display: block;
-    font-size: 14px;
-    opacity: 0.9;
-    margin-bottom: 5px;
-}
+    .cgpa-label {
+        display: block;
+        font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 5px;
+    }
 
-.cgpa-value {
-    display: block;
-    font-size: 36px;
-    font-weight: bold;
-}
+    .cgpa-value {
+        display: block;
+        font-size: 36px;
+        font-weight: bold;
+    }
 
-.report-section {
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    border: 2px solid #e0e0e0;
-}
+    .report-section {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--glass-shadow);
+    }
 
-.report-section h3 {
-    margin-bottom: 20px;
-    color: #333;
-}
+    .report-section h3 {
+        margin-bottom: 20px;
+        color: var(--text-primary);
+    }
 
-.attendance-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
+    .attendance-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
 
-.attendance-card-small {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    border: 2px solid #e0e0e0;
-}
+    .attendance-card-small {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid var(--glass-border);
+    }
 
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
 
-.card-header strong {
-    color: #333;
-    font-size: 14px;
-}
+    .card-header strong {
+        color: var(--text-primary);
+        font-size: 14px;
+    }
 
-.subject-code {
-    background: #667eea;
-    color: white;
-    padding: 3px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-}
+    .subject-code {
+        background: var(--primary);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+    }
 
-.progress-bar-container {
-    height: 8px;
-    background: #e0e0e0;
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 10px;
-}
+    .progress-bar-container {
+        height: 8px;
+        background: #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 10px;
+    }
 
-.progress-bar {
-    height: 100%;
-    transition: width 0.3s;
-}
+    .progress-bar {
+        height: 100%;
+        transition: width 0.3s;
+    }
 
-.card-footer {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-}
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+    }
 
-.card-footer .percentage {
-    font-weight: 600;
-    color: #333;
-}
+    .card-footer .percentage {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
 
-.card-footer .classes {
-    color: #666;
-}
+    .card-footer .classes {
+        color: var(--text-secondary);
+    }
 
-.attendance-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-}
+    .attendance-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--glass-border);
+    }
 
-.summary-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
+    .summary-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
 
-.summary-item i {
-    font-size: 32px;
-    color: #667eea;
-}
+    .summary-item i {
+        font-size: 32px;
+        color: var(--primary-light);
+    }
 
-.summary-item strong {
-    display: block;
-    font-size: 24px;
-    color: #333;
-}
+    .summary-item strong {
+        display: block;
+        font-size: 24px;
+        color: var(--text-primary);
+    }
 
-.summary-item span {
-    font-size: 13px;
-    color: #666;
-}
+    .summary-item span {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
 
-.assignments-table {
-    overflow-x: auto;
-}
+    .assignments-table {
+        overflow-x: auto;
+    }
 
-.assignments-table table {
-    width: 100%;
-    border-collapse: collapse;
-}
+    .assignments-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-.assignments-table th {
-    padding: 12px;
-    text-align: left;
-    background: #f8f9fa;
-    border-bottom: 2px solid #e0e0e0;
-    font-weight: 600;
-}
+    .assignments-table th {
+        padding: 12px;
+        text-align: left;
+        background: rgba(255, 255, 255, 0.05);
+        border-bottom: 2px solid var(--glass-border);
+        font-weight: 600;
+        color: var(--text-primary);
+    }
 
-.assignments-table td {
-    padding: 12px;
-    border-bottom: 1px solid #e0e0e0;
-}
+    .assignments-table td {
+        padding: 12px;
+        border-bottom: 1px solid var(--glass-border);
+        color: var(--text-secondary);
+    }
 
-.status-badge {
-    padding: 5px 12px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: 600;
-}
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 600;
+    }
 
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-}
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
 
-.status-upcoming {
-    background: #dbeafe;
-    color: #1e40af;
-}
+    .status-upcoming {
+        background: #dbeafe;
+        color: #1e40af;
+    }
 
-.status-completed {
-    background: #d1fae5;
-    color: #065f46;
-}
+    .status-completed {
+        background: #d1fae5;
+        color: #065f46;
+    }
 
-.no-data {
-    text-align: center;
-    color: #999;
-    padding: 40px;
-}
+    .no-data {
+        text-align: center;
+        color: #999;
+        padding: 40px;
+    }
 
-.report-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    padding-top: 20px;
-}
+    .report-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        padding-top: 20px;
+    }
 </style>

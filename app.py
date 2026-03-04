@@ -1,9 +1,3 @@
-"""
-University Management System - Flask Application
-Author: Student Project
-Description: A comprehensive university management system with login for students and faculty
-"""
-
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
 from datetime import datetime, timedelta
@@ -13,10 +7,7 @@ import os
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-in-production'  # Change this in production!
 
-# Database path
 DATABASE = 'database/university.db'
-
-# ==================== DATABASE FUNCTIONS ====================
 
 def get_db_connection():
     """Create a database connection"""
@@ -170,6 +161,16 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     ''')
+
+    # Create Announcements table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS announcements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
     
     conn.commit()
     
@@ -188,13 +189,15 @@ def insert_sample_data(conn):
     if cursor.fetchone()[0] > 0:
         return  # Data already exists
     
-    # Insert sample users (students)
+    # Insert sample users (students, faculty, admin)
     cursor.execute("""
         INSERT INTO users (username, password, user_type, full_name, email)
         VALUES 
-        ('2024001', 'pass123', 'student', 'Alex Johnson', 'alex.j@university.edu'),
+        ('12309622', 'arpita2005', 'student', 'Arpita', 'arpita@university.edu'),
+        ('2024001', 'ananjay2005', 'student', 'Alex Johnson', 'alex.j@university.edu'),
         ('2024002', 'pass123', 'student', 'Sarah Williams', 'sarah.w@university.edu'),
-        ('faculty1', 'pass123', 'faculty', 'Dr. Robert Smith', 'robert.s@university.edu')
+        ('faculty1', 'pass123', 'faculty', 'Dr. Robert Smith', 'robert.s@university.edu'),
+        ('admin', 'admin123', 'admin', 'System Administrator', 'admin@university.edu')
     """)
     
     # Insert student details
@@ -300,6 +303,16 @@ def student_required(f):
     def decorated_function(*args, **kwargs):
         if 'user_type' not in session or session['user_type'] != 'student':
             flash('This page is only accessible to students.', 'danger')
+            return redirect(url_for('dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def admin_required(f):
+    """Decorator to require admin login"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_type' not in session or session['user_type'] != 'admin':
+            flash('This page is only accessible to admins.', 'danger')
             return redirect(url_for('dashboard'))
         return f(*args, **kwargs)
     return decorated_function
@@ -429,6 +442,22 @@ def dashboard():
             WHERE event_date >= date('now')
         ''').fetchone()
         
+        # Get recent announcements
+        announcements = conn.execute('''
+            SELECT * FROM announcements 
+            ORDER BY created_at DESC 
+            LIMIT 5
+        ''').fetchall()
+        
+        # Get fellow students (Peers) in the same program
+        classmates = conn.execute('''
+            SELECT u.full_name, u.email, s.program
+            FROM students s
+            JOIN users u ON s.user_id = u.id
+            WHERE s.program = ? AND s.user_id != ?
+            LIMIT 6
+        ''', (student['program'], session['user_id'])).fetchall()
+        
         conn.close()
         
         dashboard_data = {
@@ -436,7 +465,9 @@ def dashboard():
             'attendance_summary': attendance_summary,
             'pending_assignments': pending_assignments['count'],
             'eligible_drives': eligible_drives['count'],
-            'upcoming_events': upcoming_events['count']
+            'upcoming_events': upcoming_events['count'],
+            'announcements': announcements,
+            'classmates': classmates
         }
         
         return render_template('dashboard.html', data=dashboard_data)
@@ -447,10 +478,18 @@ def dashboard():
             WHERE f.user_id = ?
         ''', (session['user_id'],)).fetchone()
         
+        # Get recent announcements
+        announcements = conn.execute('''
+            SELECT * FROM announcements 
+            ORDER BY created_at DESC 
+            LIMIT 5
+        ''').fetchall()
+        
         conn.close()
         
         dashboard_data = {
-            'faculty': faculty
+            'faculty': faculty,
+            'announcements': announcements
         }
         
         return render_template('dashboard_faculty.html', data=dashboard_data)
@@ -625,12 +664,20 @@ def events():
         ORDER BY er.registration_date DESC
     ''', (session['user_id'],)).fetchall()
     
+    # Get recent announcements
+    announcements = conn.execute('''
+        SELECT * FROM announcements 
+        ORDER BY created_at DESC 
+        LIMIT 5
+    ''').fetchall()
+    
     conn.close()
     
     return render_template('events.html', 
                          upcoming_events=upcoming, 
                          past_events=past,
-                         registered_events=registered_events)
+                         registered_events=registered_events,
+                         announcements=announcements)
 
 @app.route('/register-event/<int:event_id>', methods=['POST'])
 @login_required
@@ -662,6 +709,217 @@ def register_event(event_id):
         conn.close()
         
     return redirect(url_for('events'))
+# ==================== ADMIN ROUTES ====================
+
+@app.route('/admin/dashboard')
+@admin_required
+def admin_dashboard():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get stats
+    cursor.execute("SELECT COUNT(*) FROM students")
+    student_count = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(*) FROM faculty")
+    faculty_count = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(*) FROM placement_drives")
+    drive_count = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(*) FROM events")
+    event_count = cursor.fetchone()[0]
+    
+    # Get recent announcements
+    cursor.execute("SELECT * FROM announcements ORDER BY created_at DESC LIMIT 5")
+    announcements = cursor.fetchall()
+    
+    conn.close()
+    return render_template('admin_dashboard.html', 
+                           student_count=student_count, 
+                           faculty_count=faculty_count,
+                           drive_count=drive_count,
+                           event_count=event_count,
+                           announcements=announcements)
+
+@app.route('/admin/add_user', methods=['GET', 'POST'])
+@admin_required
+def admin_add_user():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user_type = request.form['user_type']
+        full_name = request.form['full_name']
+        email = request.form['email']
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        try:
+            cursor.execute("INSERT INTO users (username, password, user_type, full_name, email) VALUES (?, ?, ?, ?, ?)",
+                           (username, password, user_type, full_name, email))
+            user_id = cursor.lastrowid
+            
+            if user_type == 'student':
+                student_id = request.form['student_id']
+                program = request.form['program']
+                semester = request.form['semester']
+                cursor.execute("INSERT INTO students (user_id, student_id, program, semester) VALUES (?, ?, ?, ?)",
+                               (user_id, student_id, program, semester))
+            elif user_type == 'faculty':
+                faculty_id = request.form['faculty_id']
+                department = request.form['department']
+                designation = request.form['designation']
+                cursor.execute("INSERT INTO faculty (user_id, faculty_id, department, designation) VALUES (?, ?, ?, ?)",
+                               (user_id, faculty_id, department, designation))
+            
+            conn.commit()
+            flash(f'Successfully added {user_type}: {full_name}', 'success')
+        except sqlite3.IntegrityError:
+            flash('Username or ID already exists!', 'danger')
+        finally:
+            conn.close()
+            
+        return redirect(url_for('admin_dashboard'))
+    
+    return render_template('admin_add_user.html')
+
+@app.route('/admin/students')
+@admin_required
+def admin_students():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT s.id, u.full_name, s.student_id, s.program, s.semester, s.cgpa 
+        FROM students s 
+        JOIN users u ON s.user_id = u.id
+    """)
+    students = cursor.fetchall()
+    conn.close()
+    return render_template('admin_students.html', students=students)
+
+@app.route('/admin/student/<int:student_id>')
+@admin_required
+def admin_student_detail(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get student info
+    cursor.execute("""
+        SELECT s.*, u.full_name, u.email 
+        FROM students s 
+        JOIN users u ON s.user_id = u.id 
+        WHERE s.id = ?
+    """, (student_id,))
+    student = cursor.fetchone()
+    
+    if not student:
+        conn.close()
+        flash('Student not found!', 'danger')
+        return redirect(url_for('admin_students'))
+    
+    # Get attendance
+    cursor.execute("""
+        SELECT a.*, s.subject_name, s.subject_code 
+        FROM attendance a 
+        JOIN subjects s ON a.subject_id = s.id 
+        WHERE a.student_id = ?
+    """, (student_id,))
+    attendance = cursor.fetchall()
+    
+    conn.close()
+    return render_template('student_detail.html', student=student, attendance=attendance, admin_view=True)
+
+@app.route('/admin/add_drive', methods=['POST'])
+@admin_required
+def admin_add_drive():
+    company_name = request.form['company_name']
+    position = request.form['position']
+    eligibility = request.form['eligibility']
+    drive_date = request.form['drive_date']
+    min_cgpa = request.form['min_cgpa']
+    description = request.form['description']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO placement_drives (company_name, position, eligibility_criteria, drive_date, min_cgpa, description)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (company_name, position, eligibility, drive_date, min_cgpa, description))
+    conn.commit()
+    conn.close()
+    flash('Placement drive added successfully!', 'success')
+    return redirect(url_for('placements'))
+
+@app.route('/admin/delete_drive/<int:drive_id>')
+@admin_required
+def admin_delete_drive(drive_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM placement_drives WHERE id = ?", (drive_id,))
+    cursor.execute("DELETE FROM drive_registrations WHERE drive_id = ?", (drive_id,))
+    conn.commit()
+    conn.close()
+    flash('Placement drive removed!', 'info')
+    return redirect(url_for('placements'))
+
+@app.route('/admin/add_event', methods=['POST'])
+@admin_required
+def admin_add_event():
+    event_name = request.form['event_name']
+    event_type = request.form['event_type']
+    event_date = request.form['event_date']
+    location = request.form['location']
+    description = request.form['description']
+    organizer = request.form['organizer']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO events (event_name, event_type, event_date, location, description, organizer)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (event_name, event_type, event_date, location, description, organizer))
+    conn.commit()
+    conn.close()
+    flash('Event added successfully!', 'success')
+    return redirect(url_for('events'))
+
+@app.route('/admin/delete_event/<int:event_id>')
+@admin_required
+def admin_delete_event(event_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM events WHERE id = ?", (event_id,))
+    cursor.execute("DELETE FROM event_registrations WHERE event_id = ?", (event_id,))
+    conn.commit()
+    conn.close()
+    flash('Event removed!', 'info')
+    return redirect(url_for('events'))
+
+@app.route('/admin/add_announcement', methods=['POST'])
+@admin_required
+def admin_add_announcement():
+    title = request.form['title']
+    content = request.form['content']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO announcements (title, content) VALUES (?, ?)", (title, content))
+    conn.commit()
+    conn.close()
+    flash('Announcement posted!', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/delete_announcement/<int:ann_id>')
+@admin_required
+def admin_delete_announcement(ann_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM announcements WHERE id = ?", (ann_id,))
+    conn.commit()
+    conn.close()
+    flash('Announcement removed!', 'info')
+    return redirect(url_for('admin_dashboard'))
 
 # ==================== INITIALIZE DATABASE ON FIRST RUN ====================
 
@@ -966,4 +1224,4 @@ def student_detail(student_id):
 # ==================== RUN APPLICATION ====================
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8000)

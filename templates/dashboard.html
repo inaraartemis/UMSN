@@ -1,339 +1,118 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - University Management System{% endblock %}
+{% block title %}Dashboard - Premium UMS{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="dashboard">
+<div class="dashboard animate-up">
     <!-- Student Info Card -->
-    <div class="student-info-card">
-        <div class="info-left">
-            <div class="avatar">
+    <div class="glass-panel student-premium-card">
+        <div class="student-p-left">
+            <div class="p-avatar">
                 <i class="fas fa-user-graduate"></i>
             </div>
             <div class="info-details">
-                <h2>{{ session.full_name }}</h2>
-                <p><strong>Student ID:</strong> {{ data.student.student_id }}</p>
-                <p><strong>Program:</strong> {{ data.student.program }}</p>
-                <p><strong>Semester:</strong> {{ data.student.semester }}</p>
+                <h2 style="font-size: 28px;">{{ session.full_name }}</h2>
+                <div style="display: flex; gap: 20px; margin-top: 10px;">
+                    <p><i class="fas fa-id-card" style="margin-right: 8px; color: var(--primary-light);"></i> {{
+                        data.student.student_id }}</p>
+                    <p><i class="fas fa-graduation-cap" style="margin-right: 8px; color: var(--primary-light);"></i> {{
+                        data.student.program }}</p>
+                    <p><i class="fas fa-layer-group" style="margin-right: 8px; color: var(--primary-light);"></i> Sem {{
+                        data.student.semester }}</p>
+                </div>
             </div>
         </div>
         <div class="info-right">
-            <div class="cgpa-badge">
-                <span class="cgpa-label">CGPA</span>
-                <span class="cgpa-value">{{ "%.2f"|format(data.student.cgpa) }}</span>
+            <div class="glass-panel" style="padding: 15px 25px; text-align: center; border-color: var(--secondary);">
+                <span
+                    style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">Academic
+                    CGPA</span>
+                <span class="stat-value" style="color: var(--secondary); margin: 0;">{{ "%.2f"|format(data.student.cgpa
+                    or 0.0) }}</span>
             </div>
         </div>
     </div>
-    
-    <!-- Main Dashboard Tiles -->
-    <div class="dashboard-tiles">
-        <!-- Academics Tile -->
-        <div class="tile academics-tile">
-            <div class="tile-icon">
-                <i class="fas fa-book"></i>
-            </div>
-            <div class="tile-content">
-                <h3>Academics</h3>
-                <div class="tile-stats">
-                    <div class="stat">
-                        <span class="stat-value">{{ "%.1f"|format(data.attendance_summary.avg_attendance) }}%</span>
-                        <span class="stat-label">Avg. Attendance</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value">{{ data.pending_assignments }}</span>
-                        <span class="stat-label">Pending Assignments</span>
-                    </div>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-left">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="glass-panel stat-card">
+                    <span class="stat-value">{{ "%.1f"|format(data.attendance_summary.avg_attendance or 0.0) }}%</span>
+                    <span class="stat-label">Avg. Attendance</span>
                 </div>
-                <p class="tile-description">
-                    View your attendance, CGPA, and upcoming assignments
-                </p>
-                <a href="{{ url_for('academics') }}" class="tile-btn">
-                    View Details <i class="fas fa-arrow-right"></i>
-                </a>
+                <div class="glass-panel stat-card">
+                    <span class="stat-value">{{ data.pending_assignments }}</span>
+                    <span class="stat-label">Pending Tasks</span>
+                </div>
+                <div class="glass-panel stat-card">
+                    <span class="stat-value">{{ data.eligible_drives }}</span>
+                    <span class="stat-label">Eligible Drives</span>
+                </div>
+            </div>
+
+            <!-- Announcements -->
+            <div class="glass-panel" style="padding: 30px; margin-bottom: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h3 style="font-size: 20px;"><i class="fas fa-bullhorn"
+                            style="color: var(--accent); margin-right: 12px;"></i> Announcements</h3>
+                    <a href="{{ url_for('events') }}" class="btn btn-primary btn-sm" style="font-size: 12px;">View
+                        All</a>
+                </div>
+
+                <div class="announcements-stack" style="display: flex; flex-direction: column; gap: 15px;">
+                    {% if data.announcements %}
+                    {% for ann in data.announcements %}
+                    <div class="glass-panel"
+                        style="padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px;">
+                        <h4 style="font-size: 16px; margin-bottom: 5px;">{{ ann.title }}</h4>
+                        <p style="font-size: 13px; color: var(--text-secondary);">{{ ann.content[:100] }}...</p>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p style="text-align: center; padding: 20px; color: var(--text-secondary);">No new updates.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        
-        <!-- Placements Tile -->
-        <div class="tile placements-tile">
-            <div class="tile-icon">
-                <i class="fas fa-briefcase"></i>
-            </div>
-            <div class="tile-content">
-                <h3>Placement Portal</h3>
-                <div class="tile-stats">
-                    <div class="stat">
-                        <span class="stat-value">{{ data.eligible_drives }}</span>
-                        <span class="stat-label">Eligible Drives</span>
+
+        <div class="dashboard-right">
+            <!-- My Peers Section -->
+            <div class="glass-panel" style="padding: 25px;">
+                <h3 style="font-size: 18px; margin-bottom: 20px;"><i class="fas fa-users"
+                        style="color: var(--secondary); margin-right: 10px;"></i> My Program Peers</h3>
+                <div class="peers-list" style="display: flex; flex-direction: column; gap: 15px;">
+                    {% if data.classmates %}
+                    {% for peer in data.classmates %}
+                    <div
+                        style="display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid var(--glass-border);">
+                        <div
+                            style="width: 35px; height: 35px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 14px;">
+                            {{ peer.full_name[0] }}
+                        </div>
+                        <div>
+                            <h5 style="font-size: 14px; margin: 0;">{{ peer.full_name }}</h5>
+                            <p style="font-size: 11px; color: var(--text-secondary);">{{ peer.email }}</p>
+                        </div>
                     </div>
-                    <div class="stat">
-                        <span class="stat-value">15+</span>
-                        <span class="stat-label">Companies</span>
-                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p style="font-size: 13px; color: var(--text-secondary); text-align: center;">No peers found in {{
+                        data.student.program }}.</p>
+                    {% endif %}
                 </div>
-                <p class="tile-description">
-                    Track placement drives, company visits, and opportunities
-                </p>
-                <a href="{{ url_for('placements') }}" class="tile-btn">
-                    View Details <i class="fas fa-arrow-right"></i>
-                </a>
             </div>
-        </div>
-        
-        <!-- Events Tile -->
-        <div class="tile events-tile">
-            <div class="tile-icon">
-                <i class="fas fa-calendar-alt"></i>
-            </div>
-            <div class="tile-content">
-                <h3>What's Happening</h3>
-                <div class="tile-stats">
-                    <div class="stat">
-                        <span class="stat-value">{{ data.upcoming_events }}</span>
-                        <span class="stat-label">Upcoming Events</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value">Active</span>
-                        <span class="stat-label">This Month</span>
-                    </div>
-                </div>
-                <p class="tile-description">
-                    Stay updated with university events and activities
-                </p>
-                <a href="{{ url_for('events') }}" class="tile-btn">
-                    View Details <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
-        <div class="actions-grid">
-            <a href="{{ url_for('academics') }}" class="action-card">
-                <i class="fas fa-chart-line"></i>
-                <span>Check Attendance</span>
-            </a>
-            <a href="{{ url_for('placements') }}" class="action-card">
-                <i class="fas fa-building"></i>
-                <span>View Companies</span>
-            </a>
-            <a href="{{ url_for('events') }}" class="action-card">
-                <i class="fas fa-calendar-check"></i>
-                <span>Event Calendar</span>
-            </a>
-            <a href="{{ url_for('academics') }}" class="action-card">
-                <i class="fas fa-tasks"></i>
-                <span>Assignments</span>
-            </a>
         </div>
     </div>
 </div>
 
 <style>
-.student-info-card {
-    background: white;
-    border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.info-left {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-}
-
-.avatar {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-    color: white;
-}
-
-.info-details h2 {
-    margin-bottom: 10px;
-    color: #333;
-}
-
-.info-details p {
-    color: #666;
-    margin: 5px 0;
-    font-size: 14px;
-}
-
-.cgpa-badge {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    padding: 20px 30px;
-    border-radius: 10px;
-    text-align: center;
-    color: white;
-}
-
-.cgpa-label {
-    display: block;
-    font-size: 12px;
-    margin-bottom: 5px;
-    opacity: 0.9;
-}
-
-.cgpa-value {
-    display: block;
-    font-size: 32px;
-    font-weight: bold;
-}
-
-.dashboard-tiles {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    margin-bottom: 30px;
-}
-
-.tile {
-    background: white;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.tile:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-}
-
-.tile-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    color: white;
-    margin-bottom: 20px;
-}
-
-.academics-tile .tile-icon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.placements-tile .tile-icon {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.events-tile .tile-icon {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-.tile-content h3 {
-    font-size: 22px;
-    margin-bottom: 15px;
-    color: #333;
-}
-
-.tile-stats {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
-}
-
-.stat {
-    flex: 1;
-}
-
-.stat-value {
-    display: block;
-    font-size: 28px;
-    font-weight: bold;
-    color: #667eea;
-}
-
-.stat-label {
-    display: block;
-    font-size: 12px;
-    color: #666;
-    margin-top: 5px;
-}
-
-.tile-description {
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 20px;
-    line-height: 1.5;
-}
-
-.tile-btn {
-    display: inline-block;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 14px;
-    transition: opacity 0.3s;
-}
-
-.tile-btn:hover {
-    opacity: 0.9;
-}
-
-.quick-actions {
-    background: white;
-    border-radius: 10px;
-    padding: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.quick-actions h3 {
-    margin-bottom: 20px;
-    color: #333;
-}
-
-.actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-}
-
-.action-card {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    text-decoration: none;
-    color: #333;
-    transition: all 0.3s;
-    border: 2px solid transparent;
-}
-
-.action-card:hover {
-    background: #667eea;
-    color: white;
-    border-color: #667eea;
-}
-
-.action-card i {
-    display: block;
-    font-size: 28px;
-    margin-bottom: 10px;
-}
-
-.action-card span {
-    display: block;
-    font-size: 13px;
-    font-weight: 500;
-}
+    /* Inline specific tweaks for dashboard if needed */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+    }
 </style>
 {% endblock %}

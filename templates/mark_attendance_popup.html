@@ -228,7 +228,7 @@
                         {% if (student.attended_classes / student.total_classes * 100) >= 75 %}good
                         {% elif (student.attended_classes / student.total_classes * 100) >= 60 %}warning
                         {% else %}danger{% endif %}">
-                        {{ "%.1f"|format(student.attended_classes / student.total_classes * 100) }}%
+                        {{ "%.1f"|format((student.attended_classes or 0) / (student.total_classes or 1) * 100) }}%
                     </span>
                     <span class="attendance-details">{{ student.attended_classes }}/{{ student.total_classes }}
                         classes</span>

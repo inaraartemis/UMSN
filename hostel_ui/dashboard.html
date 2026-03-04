@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Abode · Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #0a0b1e;
+            --surface: #0f102a;
+            --card: #151736;
+            --card2: #1c1e45;
+            --border: #282b5e;
+            --border2: #34387a;
+            --accent: #b794f4;
+            --accent2: #d6bcfa;
+            --accent-dim: rgba(183, 148, 244, 0.12);
+            --teal: #63b3ed;
+            --teal-dim: rgba(99, 179, 237, 0.12);
+            --amber: #faf089;
+            --amber-dim: rgba(250, 240, 137, 0.12);
+            --violet: #fbb6ce;
+            --violet-dim: rgba(251, 182, 206, 0.12);
+            --red: #feb2b2;
+            --red-dim: rgba(254, 178, 178, 0.1);
+            --text: #e2e8f0;
+            --text-bright: #f7fafc;
+            --muted: #4a5568;
+            --muted2: #718096;
+            --sidebar-w: 270px;
+            --topbar-h: 56px;
+            --sidebar-pad: 10px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse 65% 50% at 15% -5%, rgba(183, 148, 244, 0.08) 0%, transparent 60%), radial-gradient(ellipse 45% 40% at 85% 95%, rgba(99, 179, 237, 0.06) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none;
+            z-index: 0
+        }
+
+        /* ── Floating Sidebar ── */
+        .sidebar {
+            width: var(--sidebar-w);
+            flex-shrink: 0;
+            position: fixed;
+            top: var(--sidebar-pad);
+            left: var(--sidebar-pad);
+            bottom: var(--sidebar-pad);
+            background: var(--card);
+            border: 1px solid var(--border2);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .brand {
+            padding: 18px 16px 16px;
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-mark {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, var(--accent), var(--teal));
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+        }
+
+        .brand-mark svg {
+            width: 17px;
+            height: 17px;
+            color: white
+        }
+
+        .brand-text {
+            line-height: 1.2
+        }
+
+        .brand-name {
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: var(--text-bright);
+            letter-spacing: -0.3px
+        }
+
+        .brand-name em {
+            color: var(--accent);
+            font-style: normal
+        }
+
+        .brand-sub {
+            font-size: 0.62rem;
+            color: var(--muted2);
+            font-weight: 400;
+            margin-top: 1px
+        }
+
+        nav {
+            flex: 1;
+            padding: 10px 8px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2px
+        }
+
+        .nav-section {
+            font-size: 0.59rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: 700;
+            color: var(--muted);
+            padding: 10px 10px 4px;
+            margin-top: 4px
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--muted2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text)
+        }
+
+        .nav-item.active {
+            background: var(--accent-dim);
+            color: var(--accent2);
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            bottom: 20%;
+            width: 3px;
+            background: var(--accent);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .nav-item svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            opacity: 0.8
+        }
+
+        .nav-item.active svg {
+            opacity: 1
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--accent);
+            color: white;
+            font-size: 0.61rem;
+            font-weight: 700;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 9px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-footer {
+            padding: 10px 8px
+        }
+
+        .user-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--teal));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-meta {
+            flex: 1;
+            min-width: 0
+        }
+
+        .user-name {
+            font-size: 0.79rem;
+            font-weight: 600;
+            color: var(--text-bright);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .user-role-txt {
+            font-size: 0.64rem;
+            color: var(--muted2)
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--muted2);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 6px;
+            transition: color 0.15s;
+            line-height: 1
+        }
+
+        .logout-btn:hover {
+            color: var(--red)
+        }
+
+        /* ── Main ── */
+        .main {
+            margin-left: calc(var(--sidebar-w) + var(--sidebar-pad) * 2);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .topbar {
+            height: var(--topbar-h);
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--border);
+            background: rgba(3, 8, 15, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .topbar h2 {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-bright)
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            color: var(--muted2)
+        }
+
+        .breadcrumb span {
+            color: var(--accent);
+            font-weight: 500
+        }
+
+        .topbar-right {
+            display: flex;
+            gap: 8px;
+            align-items: center
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 14px;
+            height: 32px;
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: 0.76rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white
+        }
+
+        .btn-primary:hover {
+            background: var(--accent2);
+            color: #0a2018
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border2);
+            color: var(--text)
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent)
+        }
+
+        .btn-xs {
+            height: 26px;
+            padding: 0 10px;
+            font-size: 0.72rem;
+            border-radius: 7px
+        }
+
+        /* ── Panels ── */
+        .panel {
+            display: none;
+            animation: fadeIn 0.2s ease;
+            height: 100%;
+            flex-direction: column;
+            gap: 14px
+        }
+
+        .panel.active {
+            display: flex
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        /* ── Stat Strip ── */
+        .stat-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            flex-shrink: 0
+        }
+
+        .stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+        }
+
+        .stat:hover {
+            border-color: var(--border2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3)
+        }
+
+        .ico {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0
+        }
+
+        .ico svg {
+            width: 22px;
+            height: 22px
+        }
+
+        .ico.g {
+            background: var(--accent-dim);
+            color: var(--accent2)
+        }
+
+        .ico.t {
+            background: var(--teal-dim);
+            color: #22d3ee
+        }
+
+        .ico.a {
+            background: var(--amber-dim);
+            color: #fcd34d
+        }
+
+        .ico.v {
+            background: var(--violet-dim);
+            color: #a78bfa
+        }
+
+        .sval {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-bright);
+            line-height: 1;
+            letter-spacing: -1px
+        }
+
+        .slbl {
+            font-size: 0.71rem;
+            color: var(--muted2);
+            font-weight: 500;
+            margin-top: 3px
+        }
+
+        /* ── Two col ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            flex: 1;
+            min-height: 0
+        }
+
+        .two-col .card-box {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden
+        }
+
+        .two-col .card-box table {
+            flex: 1
+        }
+
+        /* ── Quick Grid ── */
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            flex-shrink: 0
+        }
+
+        .qb {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .qb:hover {
+            border-color: var(--border2);
+            background: var(--card2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3)
+        }
+
+        .qico {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0
+        }
+
+        .qico svg {
+            width: 19px;
+            height: 19px
+        }
+
+        .qico.g {
+            background: var(--accent-dim);
+            color: var(--accent2)
+        }
+
+        .qico.t {
+            background: var(--teal-dim);
+            color: #22d3ee
+        }
+
+        .qico.a {
+            background: var(--amber-dim);
+            color: #fcd34d
+        }
+
+        .qico.v {
+            background: var(--violet-dim);
+            color: #a78bfa
+        }
+
+        .qtext-lbl {
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--text-bright)
+        }
+
+        .qtext-sub {
+            font-size: 0.64rem;
+            color: var(--muted2);
+            margin-top: 1px
+        }
+
+        /* ── Card Box ── */
+        .card-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden
+        }
+
+        .card-hd {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .card-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-bright);
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .card-title svg {
+            width: 15px;
+            height: 15px;
+            opacity: 0.6
+        }
+
+        .full-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            flex: 1
+        }
+
+        .full-hd {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        /* ── Table ── */
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th {
+            padding: 8px 16px;
+            text-align: left;
+            font-size: 0.66rem;
+            font-weight: 700;
+            color: var(--muted2);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            background: rgba(0, 0, 0, 0.15);
+            border-bottom: 1px solid var(--border)
+        }
+
+        td {
+            padding: 9px 16px;
+            font-size: 0.8rem;
+            border-bottom: 1px solid rgba(21, 32, 53, 0.6);
+            color: var(--text)
+        }
+
+        td:first-child {
+            color: var(--text-bright);
+            font-weight: 500
+        }
+
+        tr:last-child td {
+            border-bottom: none
+        }
+
+        tr:hover td {
+            background: rgba(16, 185, 129, 0.025)
+        }
+
+        .td-dim {
+            color: var(--muted2) !important;
+            font-weight: 400 !important;
+            font-size: 0.74rem
+        }
+
+        /* ── Badge ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: capitalize
+        }
+
+        .bg {
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--accent2)
+        }
+
+        .ba {
+            background: rgba(217, 119, 6, 0.12);
+            color: #fcd34d
+        }
+
+        .br {
+            background: rgba(239, 68, 68, 0.12);
+            color: #fca5a5
+        }
+
+        .bv {
+            background: rgba(124, 58, 237, 0.12);
+            color: #c4b5fd
+        }
+
+        .bt {
+            background: rgba(8, 145, 178, 0.12);
+            color: #67e8f9
+        }
+
+        .bm {
+            background: rgba(61, 85, 112, 0.2);
+            color: var(--muted2)
+        }
+
+        /* ── Modal ── */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            z-index: 500;
+            align-items: center;
+            justify-content: center
+        }
+
+        .overlay.open {
+            display: flex
+        }
+
+        .modal {
+            background: var(--card2);
+            border: 1px solid var(--border2);
+            border-radius: 20px;
+            padding: 22px;
+            width: 100%;
+            max-width: 430px;
+            animation: modalIn 0.2s ease
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95)
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1)
+            }
+        }
+
+        .modal-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px
+        }
+
+        .modal-hd h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-bright)
+        }
+
+        .xbtn {
+            background: none;
+            border: none;
+            color: var(--muted2);
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+            padding: 2px;
+            border-radius: 5px;
+            transition: color 0.15s
+        }
+
+        .xbtn:hover {
+            color: var(--text-bright)
+        }
+
+        .fg {
+            margin-bottom: 13px
+        }
+
+        .fg label {
+            display: block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--muted2);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 5px
+        }
+
+        .fg input,
+        .fg select,
+        .fg textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border2);
+            border-radius: 10px;
+            padding: 9px 12px;
+            color: var(--text-bright);
+            font-family: inherit;
+            font-size: 0.83rem;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s
+        }
+
+        .fg input:focus,
+        .fg select:focus,
+        .fg textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1)
+        }
+
+        .fg select option {
+            background: var(--card)
+        }
+
+        .fg textarea {
+            resize: vertical;
+            min-height: 76px
+        }
+
+        .row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
+        }
+
+        .modal-ft {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border)
+        }
+
+        /* ── Action btns in table ── */
+        .tbtn {
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            padding: 0 9px;
+            border-radius: 6px;
+            font-size: 0.69rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            border: 1px solid;
+            transition: all 0.12s
+        }
+
+        .tbtn-g {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent2);
+            border-color: rgba(16, 185, 129, 0.2)
+        }
+
+        .tbtn-v {
+            background: rgba(124, 58, 237, 0.1);
+            color: #c4b5fd;
+            border-color: rgba(124, 58, 237, 0.2)
+        }
+
+        /* ── Empty ── */
+        .empty {
+            padding: 32px;
+            text-align: center;
+            color: var(--muted2);
+            font-size: 0.8rem
+        }
+
+        /* ── Toast ── */
+        #tw {
+            position: fixed;
+            bottom: 18px;
+            right: 18px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 7px
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            background: var(--card2);
+            border: 1px solid var(--border2);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.79rem;
+            color: var(--text-bright);
+            min-width: 200px;
+            animation: tin 0.25s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4)
+        }
+
+        .toast.ok {
+            border-left: 3px solid var(--accent)
+        }
+
+        .toast.err {
+            border-left: 3px solid var(--red)
+        }
+
+        @keyframes tin {
+            from {
+                opacity: 0;
+                transform: translateX(20px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0)
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 4px
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+            </div>
+            <div class="brand-text">
+                <div class="brand-name"><em>Abode</em></div>
+                <div class="brand-sub">Residential Platform</div>
+            </div>
+        </div>
+
+        <nav>
+            <div class="nav-section">Overview</div>
+            <div class="nav-item active" id="ni-overview" onclick="go('overview',this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                </svg>
+                Dashboard
+            </div>
+
+            <div class="nav-section">Management</div>
+            <div class="nav-item" id="ni-hostels" onclick="go('hostels',this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 21V7l9-4 9 4v14" />
+                    <rect x="9" y="13" width="6" height="8" />
+                </svg>
+                Hostels
+            </div>
+            <div class="nav-item" id="ni-rooms" onclick="go('rooms',this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="6" width="20" height="14" rx="1" />
+                    <path d="M12 6V20M2 11h20" />
+                </svg>
+                Rooms
+            </div>
+            <div class="nav-item" id="ni-users" onclick="go('users',this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" />
+                    <path d="M16 3.13a4 4 0 010 7.75M21 21v-2a4 4 0 00-3-3.87" />
+                </svg>
+                Users
+            </div>
+            <div class="nav-item" id="ni-allocations" onclick="go('allocations',this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 10-7.778 7.778 5.5 5.5 0 007.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                </svg>
+                Allocations
+            </div>
+
+            <div class="nav-section">Operations</div>
+            <div class="nav-item" id="ni-complaints" onclick="go('complaints',this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                </svg>
+                Complaints
+                <span class="nav-badge" id="nbadge">0</span>
+            </div>
+            <div class="nav-item" id="ni-payments" onclick="go('payments',this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" />
+                    <path d="M1 10h22" />
+                </svg>
+                Payments
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-row">
+                <div class="avatar" id="sAvatar">A</div>
+                <div class="user-meta">
+                    <div class="user-name" id="sName">Admin</div>
+                    <div class="user-role-txt" id="sRole">Administrator</div>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Sign out">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="width:15px;height:15px">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ── MAIN ── -->
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-left">
+                <div class="breadcrumb">Abode / <span id="pageTitle">Dashboard</span></div>
+            </div>
+            <div class="topbar-right">
+                <button class="btn btn-outline" onclick="reload()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="width:13px;height:13px">
+                        <polyline points="23 4 23 10 17 10" />
+                        <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <!-- ── OVERVIEW ── -->
+            <div class="panel active" id="panel-overview">
+                <div class="stat-strip">
+                    <div class="stat">
+                        <div class="ico g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" />
+                            </svg></div>
+                        <div>
+                            <div class="sval" id="sq-u">—</div>
+                            <div class="slbl">Total Users</div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="ico t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="6" width="20" height="14" rx="1" />
+                                <path d="M12 6V20M2 11h20" />
+                            </svg></div>
+                        <div>
+                            <div class="sval" id="sq-r">—</div>
+                            <div class="slbl">Total Rooms</div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="ico a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                            </svg></div>
+                        <div>
+                            <div class="sval" id="sq-c">—</div>
+                            <div class="slbl">Open Complaints</div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="ico v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" />
+                                <path d="M1 10h22" />
+                            </svg></div>
+                        <div>
+                            <div class="sval" id="sq-p">—</div>
+                            <div class="slbl">Payments Tracked</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="two-col">
+                    <div class="card-box">
+                        <div class="card-hd"><span class="card-title"><svg viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                                </svg>Recent Complaints</span></div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ov-c"></tbody>
+                        </table>
+                    </div>
+                    <div class="card-box">
+                        <div class="card-hd"><span class="card-title"><svg viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <rect x="1" y="4" width="22" height="16" rx="2" />
+                                    <path d="M1 10h22" />
+                                </svg>Recent Payments</span></div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ov-p"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="quick-grid">
+                    <div class="qb" onclick="go('hostels',document.getElementById('ni-hostels'))">
+                        <div class="qico g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 21V7l9-4 9 4v14" />
+                                <rect x="9" y="13" width="6" height="8" />
+                            </svg></div>
+                        <div>
+                            <div class="qtext-lbl">Manage Hostels</div>
+                            <div class="qtext-sub">Add or view buildings</div>
+                        </div>
+                    </div>
+                    <div class="qb" onclick="go('rooms',document.getElementById('ni-rooms'))">
+                        <div class="qico t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="6" width="20" height="14" rx="1" />
+                                <path d="M12 6V20M2 11h20" />
+                            </svg></div>
+                        <div>
+                            <div class="qtext-lbl">Manage Rooms</div>
+                            <div class="qtext-sub">Vacancies & allocation</div>
+                        </div>
+                    </div>
+                    <div class="qb" onclick="go('complaints',document.getElementById('ni-complaints'))">
+                        <div class="qico a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                            </svg></div>
+                        <div>
+                            <div class="qtext-lbl">Complaints</div>
+                            <div class="qtext-sub">Resolve maintenance issues</div>
+                        </div>
+                    </div>
+                    <div class="qb" onclick="go('payments',document.getElementById('ni-payments'))">
+                        <div class="qico v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" />
+                                <path d="M1 10h22" />
+                            </svg></div>
+                        <div>
+                            <div class="qtext-lbl">Fee Payments</div>
+                            <div class="qtext-sub">Track and record fees</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── HOSTELS ── -->
+            <div class="panel" id="panel-hostels">
+                <div class="full-card">
+                    <div class="full-hd"><span class="card-title">Hostel Buildings</span><button class="btn btn-primary"
+                            onclick="openModal('mH')">+ Add Hostel</button></div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>Total Rooms</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb-h"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── ROOMS ── -->
+            <div class="panel" id="panel-rooms">
+                <div class="full-card">
+                    <div class="full-hd"><span class="card-title">Rooms</span><button class="btn btn-primary"
+                            onclick="openModal('mR')">+ Add Room</button></div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Room #</th>
+                                <th>Hostel</th>
+                                <th>Capacity</th>
+                                <th>Occupied</th>
+                                <th>Vacancy</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb-r"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── USERS ── -->
+            <div class="panel" id="panel-users">
+                <div class="full-card">
+                    <div class="full-hd"><span class="card-title">Users & Accounts</span></div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Verified</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb-u"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── ALLOCATIONS ── -->
+            <div class="panel" id="panel-allocations">
+                <div class="full-card">
+                    <div class="full-hd"><span class="card-title">Room Allocations</span><button class="btn btn-primary"
+                            onclick="openModal('mA')">+ Allocate</button></div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Student ID</th>
+                                <th>Room ID</th>
+                                <th>From</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb-a"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── COMPLAINTS ── -->
+            <div class="panel" id="panel-complaints">
+                <div class="full-card">
+                    <div class="full-hd"><span class="card-title">Maintenance Complaints</span><button
+                            class="btn btn-primary" onclick="openModal('mC')">+ Raise</button></div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb-c"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ── PAYMENTS ── -->
+            <div class="panel" id="panel-payments">
+                <div class="full-card">
+                    <div class="full-hd"><span class="card-title">Fee Payments</span><button class="btn btn-primary"
+                            onclick="openModal('mP')">+ Record</button></div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Student ID</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tb-p"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div><!-- /content -->
+    </main>
+
+    <!-- ── MODALS ── -->
+    <div class="overlay" id="mH" onclick="if(event.target===this)closeModal('mH')">
+        <div class="modal">
+            <div class="modal-hd">
+                <h3>Add Hostel</h3><button class="xbtn" onclick="closeModal('mH')">✕</button>
+            </div>
+            <div class="fg"><label>Building Name</label><input id="h-n" placeholder="Evergreen Hall" /></div>
+            <div class="fg"><label>Address</label><input id="h-a" placeholder="North Campus Block A" /></div>
+            <div class="fg"><label>Total Rooms</label><input type="number" id="h-r" value="50" /></div>
+            <div class="modal-ft"><button class="btn btn-outline" onclick="closeModal('mH')">Cancel</button><button
+                    class="btn btn-primary" onclick="addHostel()">Create</button></div>
+        </div>
+    </div>
+
+    <div class="overlay" id="mR" onclick="if(event.target===this)closeModal('mR')">
+        <div class="modal">
+            <div class="modal-hd">
+                <h3>Add Room</h3><button class="xbtn" onclick="closeModal('mR')">✕</button>
+            </div>
+            <div class="row2">
+                <div class="fg"><label>Room Number</label><input id="r-n" placeholder="101" /></div>
+                <div class="fg"><label>Capacity</label><input type="number" id="r-c" value="2" /></div>
+            </div>
+            <div class="fg"><label>Hostel ID</label><input type="number" id="r-h" value="1" /></div>
+            <div class="modal-ft"><button class="btn btn-outline" onclick="closeModal('mR')">Cancel</button><button
+                    class="btn btn-primary" onclick="addRoom()">Create</button></div>
+        </div>
+    </div>
+
+    <div class="overlay" id="mA" onclick="if(event.target===this)closeModal('mA')">
+        <div class="modal">
+            <div class="modal-hd">
+                <h3>Allocate Room</h3><button class="xbtn" onclick="closeModal('mA')">✕</button>
+            </div>
+            <div class="fg"><label>Room ID</label><input type="number" id="a-r" value="1" /></div>
+            <div class="fg"><label>Student User ID</label><input type="number" id="a-u" value="3" /></div>
+            <div class="modal-ft"><button class="btn btn-outline" onclick="closeModal('mA')">Cancel</button><button
+                    class="btn btn-primary" onclick="allocate()">Allocate</button></div>
+        </div>
+    </div>
+
+    <div class="overlay" id="mC" onclick="if(event.target===this)closeModal('mC')">
+        <div class="modal">
+            <div class="modal-hd">
+                <h3>Raise Complaint</h3><button class="xbtn" onclick="closeModal('mC')">✕</button>
+            </div>
+            <div class="fg"><label>Title</label><input id="c-t" placeholder="Fan not working" /></div>
+            <div class="fg"><label>Description</label><textarea id="c-d" placeholder="Describe the issue..."></textarea>
+            </div>
+            <div class="fg"><label>Priority</label><select id="c-p">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                </select></div>
+            <div class="modal-ft"><button class="btn btn-outline" onclick="closeModal('mC')">Cancel</button><button
+                    class="btn btn-primary" onclick="addComplaint()">Submit</button></div>
+        </div>
+    </div>
+
+    <div class="overlay" id="mP" onclick="if(event.target===this)closeModal('mP')">
+        <div class="modal">
+            <div class="modal-hd">
+                <h3>Record Payment</h3><button class="xbtn" onclick="closeModal('mP')">✕</button>
+            </div>
+            <div class="fg"><label>Student User ID</label><input type="number" id="p-u" value="3" /></div>
+            <div class="fg"><label>Amount (₹)</label><input type="number" id="p-a" value="5000" /></div>
+            <div class="fg"><label>Status</label><select id="p-s">
+                    <option value="pending">Pending</option>
+                    <option value="paid" selected>Paid</option>
+                </select></div>
+            <div class="modal-ft"><button class="btn btn-outline" onclick="closeModal('mP')">Cancel</button><button
+                    class="btn btn-primary" onclick="addPayment()">Record</button></div>
+        </div>
+    </div>
+
+    <div id="tw"></div>
+
+    <script>
+        const API = 'http://127.0.0.1:8000';
+        const token = localStorage.getItem('hostel_token');
+        if (!token) location.href = 'index.html';
+
+        const email = localStorage.getItem('hostel_email') || '';
+        const uname = email.split('@')[0];
+        document.getElementById('sAvatar').textContent = uname.charAt(0).toUpperCase();
+        document.getElementById('sName').textContent = uname.charAt(0).toUpperCase() + uname.slice(1);
+        document.getElementById('sRole').textContent = uname === 'admin' ? 'Administrator' : uname === 'warden' ? 'Warden' : 'Student';
+
+        function logout() { localStorage.clear(); location.href = 'index.html'; }
+        const H = () => ({ 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' });
+        async function api(m, p, b) {
+            const o = { method: m, headers: H() }; if (b) o.body = JSON.stringify(b);
+            const r = await fetch(API + p, o); const d = await r.json();
+            if (!r.ok) throw new Error(d.detail || JSON.stringify(d)); return d;
+        }
+        function toast(msg, type = 'ok') {
+            const w = document.getElementById('tw'); const t = document.createElement('div'); t.className = `toast ${type}`;
+            t.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:13px;height:13px;flex-shrink:0">${type === 'ok' ? '<polyline points="20 6 9 17 4 12"/>' : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'}</svg>${msg}`;
+            w.appendChild(t); setTimeout(() => t.remove(), 3500);
+        }
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+        let cur = 'overview';
+        function go(name, el) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('panel-' + name).classList.add('active');
+            el.classList.add('active');
+            const titles = { overview: 'Dashboard', hostels: 'Hostels', rooms: 'Rooms', users: 'Users', allocations: 'Allocations', complaints: 'Complaints', payments: 'Payments' };
+            document.getElementById('pageTitle').textContent = titles[name];
+            cur = name; loadPanel(name);
+        }
+        function reload() { loadPanel(cur); }
+
+        async function loadPanel(n) {
+            try {
+                if (n === 'overview') await loadOv();
+                else if (n === 'hostels') await loadH();
+                else if (n === 'rooms') await loadR();
+                else if (n === 'users') await loadU();
+                else if (n === 'allocations') await loadA();
+                else if (n === 'complaints') await loadC();
+                else if (n === 'payments') await loadP();
+            } catch (e) { toast(e.message, 'err'); }
+        }
+
+        const pb = p => ({ low: '<span class="badge bg">Low</span>', medium: '<span class="badge ba">Medium</span>', high: '<span class="badge br">High</span>' }[p] || `<span class="badge bm">${p}</span>`);
+        const sb = s => ({ open: '<span class="badge ba">Open</span>', in_progress: '<span class="badge bv">In Progress</span>', resolved: '<span class="badge bg">Resolved</span>', paid: '<span class="badge bg">Paid</span>', pending: '<span class="badge ba">Pending</span>' }[s] || `<span class="badge bm">${s}</span>`);
+        const rb = r => ({ admin: '<span class="badge bg">Admin</span>', warden: '<span class="badge bt">Warden</span>', student: '<span class="badge bm">Student</span>' }[r] || `<span class="badge bm">${r}</span>`);
+        const fd = d => d ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+        const er = (n, m) => `<tr><td colspan="${n}" class="empty">${m}</td></tr>`;
+
+        async function loadOv() {
+            const [u, r, c, p] = await Promise.all([api('GET', '/users').catch(() => []), api('GET', '/rooms').catch(() => []), api('GET', '/complaints').catch(() => []), api('GET', '/payments').catch(() => [])]);
+            document.getElementById('sq-u').textContent = u.length;
+            document.getElementById('sq-r').textContent = r.length;
+            const oc = c.filter(x => x.status === 'open').length;
+            document.getElementById('sq-c').textContent = oc;
+            document.getElementById('sq-p').textContent = p.length;
+            const nb = document.getElementById('nbadge');
+            nb.textContent = oc; nb.style.display = oc > 0 ? 'flex' : 'none';
+            document.getElementById('ov-c').innerHTML = c.length === 0 ? er(3, 'No complaints yet') : c.slice(0, 5).map(x => `<tr><td>${x.title}</td><td>${pb(x.priority)}</td><td>${sb(x.status)}</td></tr>`).join('');
+            document.getElementById('ov-p').innerHTML = p.length === 0 ? er(3, 'No payments yet') : p.slice(0, 5).map(x => `<tr><td class="td-dim">ID ${x.user_id}</td><td>₹${Number(x.amount).toLocaleString('en-IN')}</td><td>${sb(x.status)}</td></tr>`).join('');
+        }
+        async function loadH() { const d = await api('GET', '/hostels'); document.getElementById('tb-h').innerHTML = d.length === 0 ? er(4, 'No hostels yet') : d.map(h => `<tr><td>${h.id}</td><td>${h.name}</td><td class="td-dim">${h.address}</td><td>${h.total_rooms}</td></tr>`).join(''); }
+        async function loadR() { const d = await api('GET', '/rooms'); document.getElementById('tb-r').innerHTML = d.length === 0 ? er(5, 'No rooms yet') : d.map(r => { const f = r.capacity - r.occupied_count; const vc = f === 0 ? 'br' : f === r.capacity ? 'bg' : 'ba'; return `<tr><td>${r.room_number}</td><td class="td-dim">${r.hostel_id || '—'}</td><td>${r.capacity}</td><td>${r.occupied_count}</td><td><span class="badge ${vc}">${f} free</span></td></tr>` }).join(''); }
+        async function loadU() { const d = await api('GET', '/users'); document.getElementById('tb-u').innerHTML = d.length === 0 ? er(5, 'No users') : d.map(u => `<tr><td>${u.name}</td><td class="td-dim">${u.email}</td><td>${rb(u.role)}</td><td>${u.is_verified ? '<span class="badge bg">✓ Yes</span>' : '<span class="badge br">✗ No</span>'}</td><td class="td-dim">${fd(u.created_at)}</td></tr>`).join(''); }
+        async function loadA() { const d = await api('GET', '/rooms/allocations'); document.getElementById('tb-a').innerHTML = d.length === 0 ? er(5, 'No allocations yet') : d.map(a => `<tr><td>${a.id}</td><td>${a.user_id}</td><td>${a.room_id}</td><td class="td-dim">${fd(a.start_date)}</td><td>${a.is_active ? '<span class="badge bg">Active</span>' : '<span class="badge bm">Ended</span>'}</td></tr>`).join(''); }
+        async function loadC() {
+            const d = await api('GET', '/complaints');
+            const oc = d.filter(x => x.status === 'open').length;
+            const nb = document.getElementById('nbadge'); nb.textContent = oc; nb.style.display = oc > 0 ? 'flex' : 'none';
+            document.getElementById('tb-c').innerHTML = d.length === 0 ? er(5, 'No complaints yet') : d.map(c => `<tr><td>${c.title}</td><td class="td-dim" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.description}</td><td>${pb(c.priority)}</td><td>${sb(c.status)}</td><td style="display:flex;gap:5px">${c.status !== 'in_progress' && c.status !== 'resolved' ? `<button class="tbtn tbtn-g" onclick="updC(${c.id},'in_progress')">In Progress</button>` : ''} ${c.status !== 'resolved' ? `<button class="tbtn tbtn-v" onclick="updC(${c.id},'resolved')">Resolve</button>` : ''}</td></tr>`).join('');
+        }
+        async function loadP() { const d = await api('GET', '/payments'); document.getElementById('tb-p').innerHTML = d.length === 0 ? er(5, 'No payments yet') : d.map(p => `<tr><td>${p.id}</td><td>${p.user_id}</td><td>₹${Number(p.amount).toLocaleString('en-IN')}</td><td>${sb(p.status)}</td><td class="td-dim">${fd(p.payment_date)}</td></tr>`).join(''); }
+
+        async function addHostel() { try { await api('POST', '/hostels', { name: document.getElementById('h-n').value, address: document.getElementById('h-a').value, total_rooms: +document.getElementById('h-r').value }); closeModal('mH'); toast('Hostel created!'); loadH(); } catch (e) { toast(e.message, 'err'); } }
+        async function addRoom() { try { await api('POST', '/rooms', { room_number: document.getElementById('r-n').value, capacity: +document.getElementById('r-c').value, hostel_id: +document.getElementById('r-h').value }); closeModal('mR'); toast('Room added!'); loadR(); } catch (e) { toast(e.message, 'err'); } }
+        async function allocate() { try { const rid = document.getElementById('a-r').value, uid = document.getElementById('a-u').value; await api('POST', `/rooms/${rid}/allocate?user_id=${uid}`, null); closeModal('mA'); toast('Room allocated!'); loadA(); } catch (e) { toast(e.message, 'err'); } }
+        async function addComplaint() { try { await api('POST', '/complaints', { title: document.getElementById('c-t').value, description: document.getElementById('c-d').value, priority: document.getElementById('c-p').value }); closeModal('mC'); toast('Complaint submitted!'); loadC(); } catch (e) { toast(e.message, 'err'); } }
+        async function updC(id, status) { try { await api('PATCH', `/complaints/${id}`, { status }); toast(`Updated to "${status}"`); loadC(); } catch (e) { toast(e.message, 'err'); } }
+        async function addPayment() { try { await api('POST', '/payments', { user_id: +document.getElementById('p-u').value, amount: +document.getElementById('p-a').value, status: document.getElementById('p-s').value }); closeModal('mP'); toast('Payment recorded!'); loadP(); } catch (e) { toast(e.message, 'err'); } }
+
+        loadOv();
+    </script>
+</body>
+
+</html>

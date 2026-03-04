@@ -24,19 +24,19 @@
         <div class="summary-item cgpa-highlight">
             <i class="fas fa-trophy"></i>
             <div>
-                <h4>{{ "%.2f"|format(student.cgpa) }}</h4>
+                <h4>{{ "%.2f"|format(student.cgpa or 0.0) }}</h4>
                 <p>CGPA</p>
             </div>
         </div>
     </div>
-    
+
     <!-- Attendance Section -->
     <div class="section">
         <div class="section-header">
             <h2><i class="fas fa-chart-bar"></i> Attendance Details</h2>
             <p>Your attendance percentage for each subject</p>
         </div>
-        
+
         <div class="attendance-grid">
             {% for att in attendance %}
             <div class="attendance-card">
@@ -44,23 +44,23 @@
                     <h3>{{ att.subject_name }}</h3>
                     <span class="subject-code">{{ att.subject_code }}</span>
                 </div>
-                
+
                 <div class="attendance-visual">
                     <div class="circular-progress">
                         <svg width="120" height="120">
                             <circle cx="60" cy="60" r="50" class="progress-bg"></circle>
                             <circle cx="60" cy="60" r="50" class="progress-bar"
-                                    style="stroke-dasharray: 314; stroke-dashoffset: {{ 314 - (314 * att.percentage / 100) }};"
-                                    {% if att.percentage >= 75 %}stroke="#10b981"
-                                    {% elif att.percentage >= 60 %}stroke="#f59e0b"
-                                    {% else %}stroke="#ef4444"{% endif %}></circle>
+                                style="stroke-dasharray: 314; stroke-dashoffset: {{ 314 - (314 * (att.percentage or 0.0) / 100) }};"
+                                {% if (att.percentage or 0.0)>= 75 %}stroke="#10b981"
+                                {% elif (att.percentage or 0.0) >= 60 %}stroke="#f59e0b"
+                                {% else %}stroke="#ef4444"{% endif %}></circle>
                         </svg>
                         <div class="progress-text">
-                            <span class="percentage">{{ "%.1f"|format(att.percentage) }}%</span>
+                            <span class="percentage">{{ "%.1f"|format(att.percentage or 0.0) }}%</span>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="attendance-stats">
                     <div class="stat-row">
                         <span>Classes Attended:</span>
@@ -73,376 +73,399 @@
                     <div class="stat-row">
                         <span>Classes to Attend:</span>
                         <strong class="{% if att.percentage < 75 %}text-danger{% else %}text-success{% endif %}">
-                            {% if att.percentage < 75 %}
-                                {{ ((75 * att.total_classes - att.percentage * att.total_classes) / (100 - 75))|round|int }}
-                            {% else %}
-                                0
-                            {% endif %}
-                        </strong>
+                            {% if att.percentage < 75 %} {{ ((75 * att.total_classes - att.percentage *
+                                att.total_classes) / (100 - 75))|round|int }} {% else %} 0 {% endif %} </strong>
                     </div>
                 </div>
-                
-                {% if att.percentage < 75 %}
-                <div class="attendance-warning">
+
+                {% if att.percentage < 75 %} <div class="attendance-warning">
                     <i class="fas fa-exclamation-triangle"></i>
                     Low attendance! Attend more classes.
-                </div>
-                {% endif %}
             </div>
-            {% endfor %}
+            {% endif %}
         </div>
-    </div>
-    
-    <!-- Assignments Section -->
-    <div class="section">
-        <div class="section-header">
-            <h2><i class="fas fa-tasks"></i> Upcoming Assignments</h2>
-            <p>Complete these assignments before the due date</p>
-        </div>
-        
-        {% if assignments %}
-        <div class="assignments-list">
-            {% for assignment in assignments %}
-            <div class="assignment-card {% if assignment.status == 'pending' %}pending{% else %}upcoming{% endif %}">
-                <div class="assignment-icon">
-                    <i class="fas fa-file-alt"></i>
-                </div>
-                <div class="assignment-details">
-                    <h3>{{ assignment.title }}</h3>
-                    <p class="subject-name">{{ assignment.subject_name }}</p>
-                    {% if assignment.description %}
-                    <p class="description">{{ assignment.description }}</p>
-                    {% endif %}
-                </div>
-                <div class="assignment-meta">
-                    <div class="due-date">
-                        <i class="fas fa-calendar-alt"></i>
-                        <div>
-                            <span class="label">Due Date</span>
-                            <span class="date">{{ assignment.due_date }}</span>
-                        </div>
-                    </div>
-                    <span class="status-badge status-{{ assignment.status }}">
-                        {{ assignment.status|title }}
-                    </span>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <i class="fas fa-check-circle"></i>
-            <h3>All caught up!</h3>
-            <p>No pending assignments at the moment.</p>
-        </div>
-        {% endif %}
+        {% endfor %}
     </div>
 </div>
 
+<!-- Assignments Section -->
+<div class="section">
+    <div class="section-header">
+        <h2><i class="fas fa-tasks"></i> Upcoming Assignments</h2>
+        <p>Complete these assignments before the due date</p>
+    </div>
+
+    {% if assignments %}
+    <div class="assignments-list">
+        {% for assignment in assignments %}
+        <div class="assignment-card {% if assignment.status == 'pending' %}pending{% else %}upcoming{% endif %}">
+            <div class="assignment-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="assignment-details">
+                <h3>{{ assignment.title }}</h3>
+                <p class="subject-name">{{ assignment.subject_name }}</p>
+                {% if assignment.description %}
+                <p class="description">{{ assignment.description }}</p>
+                {% endif %}
+            </div>
+            <div class="assignment-meta">
+                <div class="due-date">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div>
+                        <span class="label">Due Date</span>
+                        <span class="date">{{ assignment.due_date }}</span>
+                    </div>
+                </div>
+                <span class="status-badge status-{{ assignment.status }}">
+                    {{ assignment.status|title }}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-check-circle"></i>
+        <h3>All caught up!</h3>
+        <p>No pending assignments at the moment.</p>
+    </div>
+    {% endif %}
+</div>
+</div>
+
 <style>
-.summary-card {
-    background: white;
-    border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-}
+    .summary-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: var(--glass-shadow);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
 
-.summary-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px;
-    border-radius: 8px;
-    background: #f8f9fa;
-}
+    .summary-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+    }
 
-.summary-item i {
-    font-size: 32px;
-    color: #667eea;
-}
+    .summary-item i {
+        font-size: 32px;
+        color: var(--primary-light);
+    }
 
-.summary-item h4 {
-    font-size: 24px;
-    margin-bottom: 5px;
-    color: #333;
-}
+    .summary-item h4 {
+        font-size: 24px;
+        margin-bottom: 5px;
+        color: var(--text-primary);
+    }
 
-.summary-item p {
-    color: #666;
-    font-size: 14px;
-}
+    .summary-item p {
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
 
-.cgpa-highlight {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
+    .cgpa-highlight {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        border: none;
+    }
 
-.cgpa-highlight i,
-.cgpa-highlight h4,
-.cgpa-highlight p {
-    color: white;
-}
+    .cgpa-highlight i,
+    .cgpa-highlight h4,
+    .cgpa-highlight p {
+        color: white;
+    }
 
-.section {
-    background: white;
-    border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
+    .section {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: var(--glass-shadow);
+    }
 
-.section-header {
-    margin-bottom: 25px;
-}
+    .section-header {
+        margin-bottom: 25px;
+    }
 
-.section-header h2 {
-    font-size: 24px;
-    margin-bottom: 8px;
-    color: #333;
-}
+    .section-header h2 {
+        font-size: 24px;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+    }
 
-.section-header p {
-    color: #666;
-    font-size: 14px;
-}
+    .section-header p {
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
 
-.attendance-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-}
+    .attendance-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
 
-.attendance-card {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 20px;
-    border: 2px solid #e0e0e0;
-}
+    .attendance-card {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid var(--glass-border);
+        transition: var(--transition);
+    }
 
-.subject-header {
-    margin-bottom: 20px;
-}
+    .attendance-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateY(-5px);
+    }
 
-.subject-header h3 {
-    font-size: 18px;
-    margin-bottom: 5px;
-    color: #333;
-}
+    .subject-header {
+        margin-bottom: 20px;
+    }
 
-.subject-code {
-    background: #667eea;
-    color: white;
-    padding: 3px 10px;
-    border-radius: 15px;
-    font-size: 11px;
-    font-weight: 600;
-}
+    .subject-header h3 {
+        font-size: 18px;
+        margin-bottom: 5px;
+        color: var(--text-primary);
+    }
 
-.attendance-visual {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-}
+    .subject-code {
+        background: var(--primary);
+        color: white;
+        padding: 3px 10px;
+        border-radius: 15px;
+        font-size: 11px;
+        font-weight: 600;
+    }
 
-.circular-progress {
-    position: relative;
-}
+    .attendance-visual {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
 
-.circular-progress svg {
-    transform: rotate(-90deg);
-}
+    .circular-progress {
+        position: relative;
+    }
 
-.progress-bg {
-    fill: none;
-    stroke: #e0e0e0;
-    stroke-width: 8;
-}
+    .circular-progress svg {
+        transform: rotate(-90deg);
+    }
 
-.progress-bar {
-    fill: none;
-    stroke-width: 8;
-    transition: stroke-dashoffset 1s;
-    stroke-linecap: round;
-}
+    .progress-bg {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.1);
+        stroke-width: 8;
+    }
 
-.progress-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-}
+    .progress-bar {
+        fill: none;
+        stroke-width: 8;
+        transition: stroke-dashoffset 1s;
+        stroke-linecap: round;
+    }
 
-.progress-text .percentage {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-}
+    .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
 
-.attendance-stats {
-    margin-top: 15px;
-}
+    .progress-text .percentage {
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--text-primary);
+    }
 
-.stat-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #e0e0e0;
-    font-size: 14px;
-}
+    .attendance-stats {
+        margin-top: 15px;
+    }
 
-.stat-row:last-child {
-    border-bottom: none;
-}
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--glass-border);
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
 
-.text-danger {
-    color: #ef4444;
-}
+    .stat-row strong {
+        color: var(--text-primary);
+    }
 
-.text-success {
-    color: #10b981;
-}
+    .stat-row:last-child {
+        border-bottom: none;
+    }
 
-.attendance-warning {
-    margin-top: 15px;
-    padding: 10px;
-    background: #fef2f2;
-    border-left: 3px solid #ef4444;
-    color: #991b1b;
-    font-size: 13px;
-    border-radius: 5px;
-}
+    .text-danger {
+        color: var(--accent) !important;
+    }
 
-.assignments-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+    .text-success {
+        color: var(--secondary) !important;
+    }
 
-.assignment-card {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 20px;
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    border-left: 4px solid #667eea;
-}
+    .attendance-warning {
+        margin-top: 15px;
+        padding: 10px;
+        background: rgba(255, 0, 127, 0.1);
+        border-left: 3px solid var(--accent);
+        color: white;
+        font-size: 13px;
+        border-radius: 5px;
+    }
 
-.assignment-card.pending {
-    border-left-color: #f59e0b;
-}
+    .assignments-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
 
-.assignment-icon {
-    width: 50px;
-    height: 50px;
-    background: #667eea;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: white;
-    flex-shrink: 0;
-}
+    .assignment-card {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        border: 1px solid var(--glass-border);
+        border-left: 5px solid var(--primary);
+        transition: var(--transition);
+    }
 
-.assignment-card.pending .assignment-icon {
-    background: #f59e0b;
-}
+    .assignment-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+        transform: translateX(5px);
+    }
 
-.assignment-details {
-    flex: 1;
-}
+    .assignment-card.pending {
+        border-left-color: var(--accent);
+    }
 
-.assignment-details h3 {
-    font-size: 18px;
-    margin-bottom: 5px;
-    color: #333;
-}
+    .assignment-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--primary);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        flex-shrink: 0;
+    }
 
-.subject-name {
-    color: #667eea;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
+    .assignment-card.pending .assignment-icon {
+        background: var(--accent);
+    }
 
-.description {
-    color: #666;
-    font-size: 14px;
-    margin-top: 8px;
-}
+    .assignment-details {
+        flex: 1;
+    }
 
-.assignment-meta {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 10px;
-}
+    .assignment-details h3 {
+        font-size: 18px;
+        margin-bottom: 5px;
+        color: var(--text-primary);
+    }
 
-.due-date {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
+    .subject-name {
+        color: var(--primary-light);
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
 
-.due-date i {
-    font-size: 20px;
-    color: #667eea;
-}
+    .description {
+        color: var(--text-secondary);
+        font-size: 14px;
+        margin-top: 8px;
+    }
 
-.due-date .label {
-    display: block;
-    font-size: 11px;
-    color: #666;
-}
+    .assignment-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 10px;
+    }
 
-.due-date .date {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: #333;
-}
+    .due-date {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
 
-.status-badge {
-    padding: 5px 15px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: 600;
-}
+    .due-date i {
+        font-size: 20px;
+        color: var(--primary-light);
+    }
 
-.status-pending {
-    background: #fef3c7;
-    color: #92400e;
-}
+    .due-date .label {
+        display: block;
+        font-size: 11px;
+        color: var(--text-secondary);
+    }
 
-.status-upcoming {
-    background: #dbeafe;
-    color: #1e40af;
-}
+    .due-date .date {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
 
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-}
+    .status-badge {
+        padding: 5px 15px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid transparent;
+    }
 
-.empty-state i {
-    font-size: 60px;
-    color: #10b981;
-    margin-bottom: 20px;
-}
+    .status-pending {
+        background: rgba(255, 0, 127, 0.1);
+        color: var(--accent);
+        border-color: var(--accent);
+    }
 
-.empty-state h3 {
-    font-size: 24px;
-    margin-bottom: 10px;
-    color: #333;
-}
+    .status-upcoming {
+        background: rgba(0, 210, 255, 0.1);
+        color: var(--secondary);
+        border-color: var(--secondary);
+    }
 
-.empty-state p {
-    color: #666;
-}
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .empty-state i {
+        font-size: 60px;
+        color: var(--primary-light);
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+    }
 </style>
 {% endblock %}

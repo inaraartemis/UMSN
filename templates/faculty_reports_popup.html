@@ -31,7 +31,7 @@
                     <td>
                         <span
                             class="cgpa-badge {% if student.cgpa >= 8.0 %}excellent{% elif student.cgpa >= 7.0 %}good{% else %}average{% endif %}">
-                            {{ "%.2f"|format(student.cgpa) }}
+                            {{ "%.2f"|format(student.cgpa or 0.0) }}
                         </span>
                     </td>
                     <td>{{ student.email }}</td>
@@ -64,7 +64,8 @@
         <div class="stat-box">
             <i class="fas fa-chart-line"></i>
             <div>
-                <strong>{{ "%.2f"|format(students|map(attribute='cgpa')|sum / students|length) }}</strong>
+                <strong>{{ "%.2f"|format((students|map(attribute='cgpa')|sum or 0.0) / ([students|length, 1]|max))
+                    }}</strong>
                 <span>Average CGPA</span>
             </div>
         </div>
@@ -96,20 +97,24 @@
         left: 15px;
         top: 50%;
         transform: translateY(-50%);
-        color: #666;
+        color: var(--text-secondary);
     }
 
     .search-box input {
         width: 100%;
         padding: 12px 12px 12px 45px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
         font-size: 14px;
+        color: white;
+        transition: var(--transition);
     }
 
     .search-box input:focus {
         outline: none;
-        border-color: #667eea;
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.08);
     }
 
     .students-table-container {
@@ -122,11 +127,11 @@
     .students-table {
         width: 100%;
         border-collapse: collapse;
-        background: white;
+        background: transparent;
     }
 
     .students-table thead {
-        background: #f8f9fa;
+        background: rgba(255, 255, 255, 0.05);
         position: sticky;
         top: 0;
         z-index: 10;
@@ -136,19 +141,20 @@
         padding: 12px;
         text-align: left;
         font-weight: 600;
-        color: #333;
-        border-bottom: 2px solid #e0e0e0;
+        color: var(--text-primary);
+        border-bottom: 2px solid var(--glass-border);
         font-size: 14px;
     }
 
     .students-table td {
         padding: 12px;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid var(--glass-border);
         font-size: 14px;
+        color: var(--text-secondary);
     }
 
     .students-table tbody tr:hover {
-        background: #f8f9ff;
+        background: rgba(255, 255, 255, 0.03);
     }
 
     .cgpa-badge {
@@ -181,28 +187,29 @@
     }
 
     .stat-box {
-        background: #f8f9fa;
+        background: rgba(255, 255, 255, 0.03);
         padding: 20px;
-        border-radius: 8px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         gap: 15px;
+        border: 1px solid var(--glass-border);
     }
 
     .stat-box i {
         font-size: 32px;
-        color: #667eea;
+        color: var(--primary-light);
     }
 
     .stat-box strong {
         display: block;
         font-size: 24px;
-        color: #333;
+        color: var(--text-primary);
         margin-bottom: 3px;
     }
 
     .stat-box span {
         font-size: 13px;
-        color: #666;
+        color: var(--text-secondary);
     }
 </style>

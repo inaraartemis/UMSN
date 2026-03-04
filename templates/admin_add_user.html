@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Add User - Admin Panel{% endblock %}
+{% block page_title %}Add New User{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="card-header">
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to
+            Dashboard</a>
+    </div>
+
+    <div class="form-container">
+        <form action="{{ url_for('admin_add_user') }}" method="POST" id="addUserForm">
+            <div class="section-title">User Account</div>
+            <div class="grid-form">
+                <div class="form-group">
+                    <label for="username">Username / ID</label>
+                    <input type="text" id="username" name="username" required placeholder="Login ID">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Initial Password">
+                </div>
+                <div class="form-group">
+                    <label for="user_type">User Type</label>
+                    <select id="user_type" name="user_type" required onchange="toggleExtraFields()">
+                        <option value="student">Student</option>
+                        <option value="faculty">Faculty</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section-title">Personal Details</div>
+            <div class="grid-form">
+                <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" required placeholder="Full Name">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="email@university.edu">
+                </div>
+            </div>
+
+            <!-- Student Specific Fields -->
+            <div id="studentFields">
+                <div class="section-title">Student Information</div>
+                <div class="grid-form">
+                    <div class="form-group">
+                        <label for="student_id">Roll Number</label>
+                        <input type="text" id="student_id" name="student_id" placeholder="e.g. 2024001">
+                    </div>
+                    <div class="form-group">
+                        <label for="program">Program / Degree</label>
+                        <input type="text" id="program" name="program" placeholder="e.g. B.Tech CSE">
+                    </div>
+                    <div class="form-group">
+                        <label for="semester">Current Semester</label>
+                        <input type="number" id="semester" name="semester" min="1" max="12" value="1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty Specific Fields -->
+            <div id="facultyFields" style="display: none;">
+                <div class="section-title">Faculty Information</div>
+                <div class="grid-form">
+                    <div class="form-group">
+                        <label for="faculty_id">Faculty ID</label>
+                        <input type="text" id="faculty_id" name="faculty_id" placeholder="e.g. FAC202401">
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department</label>
+                        <input type="text" id="department" name="department" placeholder="e.g. Computer Science">
+                    </div>
+                    <div class="form-group">
+                        <label for="designation">Designation</label>
+                        <input type="text" id="designation" name="designation" placeholder="e.g. Associate Professor">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">Register User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleExtraFields() {
+        const type = document.getElementById('user_type').value;
+        const studentFields = document.getElementById('studentFields');
+        const facultyFields = document.getElementById('facultyFields');
+
+        if (type === 'student') {
+            studentFields.style.display = 'block';
+            facultyFields.style.display = 'none';
+            // Add required to student inputs
+            document.getElementById('student_id').required = true;
+            document.getElementById('program').required = true;
+            // Remove required from faculty
+            document.getElementById('faculty_id').required = false;
+            document.getElementById('department').required = false;
+        } else {
+            studentFields.style.display = 'none';
+            facultyFields.style.display = 'block';
+            // Add required to faculty
+            document.getElementById('faculty_id').required = true;
+            document.getElementById('department').required = true;
+            // Remove required from student
+            document.getElementById('student_id').required = false;
+            document.getElementById('program').required = false;
+        }
+    }
+    // Initialize
+    document.addEventListener('DOMContentLoaded', toggleExtraFields);
+</script>
+
+<style>
+    .admin-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: var(--glass-shadow);
+    }
+
+    .back-link {
+        color: var(--primary-light);
+        text-decoration: none;
+        font-weight: 500;
+        display: inline-block;
+        margin-bottom: 20px;
+        transition: var(--transition);
+    }
+
+    .back-link:hover {
+        color: white;
+        transform: translateX(-5px);
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 25px 0 15px 0;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--glass-border);
+    }
+
+    .grid-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-secondary);
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        color: white;
+        outline: none;
+        transition: var(--transition);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .form-group select option {
+        background: #1a1a2e;
+        color: white;
+    }
+
+    .form-actions {
+        margin-top: 40px;
+        text-align: right;
+    }
+
+    .btn-lg {
+        padding: 12px 30px;
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}

@@ -11,7 +11,7 @@
             <i class="fas fa-check-circle"></i>
             <div>
                 <h3>You are eligible for {{ eligible_drives|length }} placement drives</h3>
-                <p>Your CGPA: {{ "%.2f"|format(student.cgpa) }} | Keep up the good work!</p>
+                <p>Your CGPA: {{ "%.2f"|format(student.cgpa or 0.0) }} | Keep up the good work!</p>
             </div>
         </div>
     </div>
@@ -22,6 +22,14 @@
             <h2><i class="fas fa-rocket"></i> Eligible Placement Drives</h2>
             <p>Companies you can apply to based on your CGPA</p>
         </div>
+
+        {% if session.user_type == 'admin' %}
+        <div class="admin-actions-bar" style="margin-bottom: 20px;">
+            <button class="btn btn-primary" onclick="openAddDriveModal()">
+                <i class="fas fa-plus"></i> Add New Placement Drive
+            </button>
+        </div>
+        {% endif %}
 
         {% if eligible_drives %}
         <div class="drives-grid">
@@ -58,22 +66,24 @@
                 <div class="drive-footer">
                     <span class="status-badge status-{{ drive.status|lower }}">{{ drive.status }}</span>
                     <div class="action-buttons">
-                        <button class="btn btn-info btn-sm"
-                            data-id="{{ drive.id }}"
-                            data-company="{{ drive.company_name|e }}"
-                            data-position="{{ drive.position|e }}"
+                        <button class="btn btn-info btn-sm" data-id="{{ drive.id }}"
+                            data-company="{{ drive.company_name|e }}" data-position="{{ drive.position|e }}"
                             data-description="{{ drive.description|default('', true)|e }}"
                             onclick="openApplyModal(this, true, false)">
                             <i class="fas fa-info-circle"></i> Info
                         </button>
-                        <button class="btn btn-primary btn-sm"
-                            data-id="{{ drive.id }}"
-                            data-company="{{ drive.company_name|e }}"
-                            data-position="{{ drive.position|e }}"
+                        <button class="btn btn-primary btn-sm" data-id="{{ drive.id }}"
+                            data-company="{{ drive.company_name|e }}" data-position="{{ drive.position|e }}"
                             data-description="{{ drive.description|default('', true)|e }}"
                             onclick="openApplyModal(this, false, true)">
                             <i class="fas fa-paper-plane"></i> Apply Now
                         </button>
+                        {% if session.user_type == 'admin' %}
+                        <a href="{{ url_for('admin_delete_drive', drive_id=drive.id) }}" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure you want to delete this drive?')">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -107,7 +117,7 @@
                         <h3>{{ drive.company_name }}</h3>
                         <p class="position">{{ drive.position }}</p>
                     </div>
-                    <span class="eligible-badge" style="background-color: #3b82f6;">
+                    <span class="eligible-badge" style="background-color: var(--secondary);">
                         <i class="fas fa-registered"></i> Registered
                     </span>
                 </div>
@@ -130,10 +140,8 @@
                 <div class="drive-footer">
                     <span class="status-badge status-{{ drive.status|lower }}">{{ drive.status }}</span>
                     <div class="action-buttons">
-                        <button class="btn btn-info btn-sm"
-                            data-id="{{ drive.id }}"
-                            data-company="{{ drive.company_name|e }}"
-                            data-position="{{ drive.position|e }}"
+                        <button class="btn btn-info btn-sm" data-id="{{ drive.id }}"
+                            data-company="{{ drive.company_name|e }}" data-position="{{ drive.position|e }}"
                             data-description="{{ drive.description|default('', true)|e }}"
                             onclick="openApplyModal(this, true, true)">
                             <i class="fas fa-info-circle"></i> Info
@@ -309,6 +317,59 @@
             </div>
         </div>
     </div>
+
+    <!-- Add Drive Modal (Admin) -->
+    {% if session.user_type == 'admin' %}
+    <div id="addDriveModal" class="modal">
+        <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);">
+                <h3>Add New Placement Drive</h3>
+                <span class="close-modal" onclick="closeAddDriveModal()">&times;</span>
+            </div>
+            <form action="{{ url_for('admin_add_drive') }}" method="POST">
+                <div class="modal-body">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Company Name</label>
+                        <input type="text" name="company_name" required class="form-control"
+                            style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Position</label>
+                        <input type="text" name="position" required class="form-control"
+                            style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Eligibility Criteria</label>
+                        <input type="text" name="eligibility" required class="form-control"
+                            style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                    </div>
+                    <div class="grid-form"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label>Drive Date</label>
+                            <input type="date" name="drive_date" required class="form-control"
+                                style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                        </div>
+                        <div class="form-group">
+                            <label>Min CGPA</label>
+                            <input type="number" step="0.1" name="min_cgpa" required class="form-control"
+                                style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="description" rows="4" class="form-control"
+                            style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddDriveModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Drive</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <script>
@@ -342,16 +403,48 @@
         document.getElementById('applyModal').style.display = 'none';
     }
 
-    // Close modal if clicked outside
+    function openAddDriveModal() {
+        document.getElementById('addDriveModal').style.display = 'block';
+    }
+
+    function closeAddDriveModal() {
+        document.getElementById('addDriveModal').style.display = 'none';
+    }
+
+    // Update close modal if clicked outside
     window.onclick = function (event) {
-        var modal = document.getElementById('applyModal');
-        if (event.target == modal) {
-            modal.style.display = "none";
+        var applyModal = document.getElementById('applyModal');
+        var addModal = document.getElementById('addDriveModal');
+        if (event.target == applyModal) {
+            applyModal.style.display = "none";
+        }
+        if (event.target == addModal) {
+            addModal.style.display = "none";
         }
     }
 </script>
 
 <style>
+    .btn-danger {
+        background: #ef4444;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+    }
+
+    .form-control:focus {
+        border-color: #4361ee;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1);
+    }
+
     .eligibility-banner {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
@@ -382,11 +475,13 @@
     }
 
     .section {
-        background: white;
-        border-radius: 10px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
         padding: 25px;
         margin-bottom: 30px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--glass-shadow);
     }
 
     .section-header {
@@ -411,21 +506,22 @@
     }
 
     .drive-card {
-        background: #f8f9fa;
-        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
         padding: 20px;
-        border: 2px solid #e0e0e0;
-        transition: all 0.3s;
+        border: 1px solid var(--glass-border);
+        transition: var(--transition);
     }
 
     .drive-card.eligible {
-        border-color: #10b981;
-        background: #f0fdf4;
+        border-color: var(--secondary);
+        background: rgba(0, 210, 255, 0.05);
     }
 
     .drive-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: var(--glass-shadow);
     }
 
     .drive-header {

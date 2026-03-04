@@ -37,9 +37,27 @@ def update_db():
             UNIQUE(user_id, event_id)
         )
     ''')
-    
-    # Update Placement Drives table schema if needed (adding description column if missing)
-    
+        # Create Announcements table
+    print("Creating announcements table...")
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS announcements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Add admin user if not exists
+    print("Checking for admin user...")
+    cursor.execute("SELECT COUNT(*) FROM users WHERE username = 'admin'")
+    if cursor.fetchone()[0] == 0:
+        print("Adding admin user...")
+        cursor.execute("""
+            INSERT INTO users (username, password, user_type, full_name, email)
+            VALUES ('admin', 'admin123', 'admin', 'System Administrator', 'admin@university.edu')
+        """)
+
     # Update Placement Drives table schema if needed (adding description column if missing)
     # SQLite doesn't support IF NOT EXISTS for columns, so we check first
     print("Checking placement_drives schema...")
@@ -52,6 +70,27 @@ def update_db():
         
         # update description for existing records
         cursor.execute("UPDATE placement_drives SET description = 'No description available.' WHERE description IS NULL")
+    
+    # NEW MIGRATION: Add Arpita's credentials
+    print("Adding/Updating credentials for Arpita (12309622)...")
+    cursor.execute("SELECT id FROM users WHERE username = '12309622'")
+    user = cursor.fetchone()
+    if not user:
+        cursor.execute("""
+            INSERT INTO users (username, password, user_type, full_name, email)
+            VALUES ('12309622', 'arpita2005', 'student', 'Arpita', 'arpita@university.edu')
+        """)
+        user_id = cursor.lastrowid
+        cursor.execute("""
+            INSERT INTO students (user_id, student_id, program, semester, cgpa)
+            VALUES (?, '12309622', 'Computer Science', 6, 9.0)
+        """, (user_id,))
+    else:
+        cursor.execute("UPDATE users SET password = 'arpita2005' WHERE username = '12309622'")
+
+    # NEW MIGRATION: Fix password for user 2024001 (Ananjay)
+    print("Fixing password for student 2024001...")
+    cursor.execute("UPDATE users SET password = 'ananjay2005' WHERE username = '2024001'")
     
     conn.commit()
     conn.close()

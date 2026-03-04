@@ -1,5 +1,5 @@
 ╔════════════════════════════════════════════════════════════════╗
-║        UNIVERSITY MANAGEMENT SYSTEM - QUICK START GUIDE        ║
+║                 WELCOME TO evrythghere portal                  ║
 ╚════════════════════════════════════════════════════════════════╝
 
 🎓 WHAT YOU'VE GOT:
@@ -41,9 +41,9 @@ A complete Flask-based university management system with:
    
    Login with these credentials:
    
-   STUDENT:          FACULTY:
-   student1          faculty1
-   pass123           pass123
+   STUDENT:          FACULTY:           ADMIN:
+   2024001           faculty1          admin
+   ananju2005        pass123           admin123
 
 
 🗂️  PROJECT STRUCTURE:

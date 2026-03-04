@@ -21,6 +21,14 @@
                     <p>Don't miss out on these exciting events</p>
                 </div>
 
+                {% if session.user_type == 'admin' %}
+                <div class="admin-actions-bar" style="margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="openAddEventModal()">
+                        <i class="fas fa-plus"></i> Add New Event
+                    </button>
+                </div>
+                {% endif %}
+
                 {% if upcoming_events %}
                 <!-- Event Filters -->
                 <div class="event-filters">
@@ -88,6 +96,14 @@
                                     onclick="openDetailsModal('{{ event.event_name }}', '{{ event.event_date }}', '{{ event.location }}', '{{ event.organizer }}', '{{ event.event_type }}', `{{ event.description }}`)">
                                     <i class="fas fa-info-circle"></i> Details
                                 </button>
+
+                                {% if session.user_type == 'admin' %}
+                                <a href="{{ url_for('admin_delete_event', event_id=event.id) }}"
+                                    class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Are you sure you want to delete this event?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -211,39 +227,90 @@
         </div>
 
         <div class="announcements-list">
+            {% for ann in announcements %}
             <div class="announcement-card">
                 <div class="announcement-icon">
-                    <i class="fas fa-exclamation-circle"></i>
+                    <i class="fas fa-bullhorn"></i>
                 </div>
                 <div class="announcement-content">
-                    <h4>Registration Deadline Extended</h4>
-                    <p class="date">Posted on: Feb 18, 2026</p>
-                    <p>The registration deadline for the Tech Hackathon has been extended by 2 days.</p>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <h4>{{ ann.title }}</h4>
+                        {% if session.user_type == 'admin' %}
+                        <a href="{{ url_for('admin_delete_announcement', ann_id=ann.id) }}" style="color: #ef4444;"
+                            onclick="return confirm('Delete announcement?')">
+                            <i class="fas fa-times"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                    <p class="date">Posted on: {{ ann.created_at }}</p>
+                    <p>{{ ann.content }}</p>
                 </div>
             </div>
-
-            <div class="announcement-card">
-                <div class="announcement-icon priority">
-                    <i class="fas fa-star"></i>
-                </div>
-                <div class="announcement-content">
-                    <h4>Annual Cultural Fest Dates Announced</h4>
-                    <p class="date">Posted on: Feb 15, 2026</p>
-                    <p>Get ready! The annual cultural fest will be held from March 20th to March 22nd.</p>
-                </div>
-            </div>
-            <div class="announcement-card">
-                <div class="announcement-icon">
-                    <i class="fas fa-info-circle"></i>
-                </div>
-                <div class="announcement-content">
-                    <h4>Workshop Venue Change</h4>
-                    <p class="date">Posted on: Feb 10, 2026</p>
-                    <p>The "AI for Beginners" workshop will now be held in Block 3, Room 201.</p>
-                </div>
-            </div>
+            {% else %}
+            <p>No announcements yet.</p>
+            {% endfor %}
         </div>
     </div>
+</div>
+
+<!-- Add Event Modal (Admin) -->
+{% if session.user_type == 'admin' %}
+<div id="addEventModal" class="modal">
+    <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
+        <span class="close" onclick="closeAddEventModal()">&times;</span>
+        <h2>Add New Event</h2>
+        <form action="{{ url_for('admin_add_event') }}" method="POST">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Event Name</label>
+                <input type="text" name="event_name" required
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            <div class="grid-form"
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 5px;">Event Type</label>
+                    <select name="event_type" required
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="Technical">Technical</option>
+                        <option value="Cultural">Cultural</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Workshop">Workshop</option>
+                        <option value="Competition">Competition</option>
+                        <option value="Placement">Placement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 5px;">Event Date</label>
+                    <input type="date" name="event_date" required
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+            </div>
+            <div class="grid-form"
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 5px;">Location</label>
+                    <input type="text" name="location" required
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div class="form-group">
+                    <label style="display: block; margin-bottom: 5px;">Organizer</label>
+                    <input type="text" name="organizer" required
+                        style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Description</label>
+                <textarea name="description" rows="4"
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" onclick="closeAddEventModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Event</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
 </div>
 
 <style>
@@ -272,8 +339,8 @@
         padding: 8px 16px;
         border-radius: 20px;
         border: 1px solid #e0e0e0;
-        background: white;
-        color: #666;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-secondary);
         cursor: pointer;
         transition: all 0.3s;
         font-size: 14px;
@@ -311,17 +378,17 @@
         gap: 15px;
         align-items: center;
         padding: 10px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border-left: 4px solid #667eea;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
+        border-left: 4px solid var(--primary);
     }
 
     .reg-date {
-        background: white;
+        background: rgba(255, 255, 255, 0.05);
         padding: 5px 10px;
         border-radius: 5px;
         text-align: center;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--glass-border);
     }
 
     .reg-date .day {
@@ -369,15 +436,18 @@
     }
 
     .modal-content {
-        background-color: #fefefe;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
         margin: 10% auto;
         padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        box-shadow: var(--glass-shadow);
         width: 60%;
         max-width: 700px;
         position: relative;
         animation: slideIn 0.3s;
+        color: var(--text-primary);
     }
 
     .modal-content.small-modal {
@@ -493,11 +563,13 @@
     }
 
     .section {
-        background: white;
-        border-radius: 10px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
         padding: 25px;
         margin-bottom: 30px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--glass-shadow);
     }
 
     .section-header {
@@ -522,13 +594,13 @@
     }
 
     .event-card {
-        background: #f8f9fa;
-        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 12px;
         padding: 25px;
         display: flex;
         gap: 25px;
-        border: 2px solid #e0e0e0;
-        transition: all 0.3s;
+        border: 1px solid var(--glass-border);
+        transition: var(--transition);
     }
 
     .event-card:hover {
@@ -845,6 +917,17 @@
 
 
 
+    // Add Event Modal
+    const addEventModal = document.getElementById("addEventModal");
+
+    function openAddEventModal() {
+        if (addEventModal) addEventModal.style.display = "block";
+    }
+
+    function closeAddEventModal() {
+        if (addEventModal) addEventModal.style.display = "none";
+    }
+
     // Close Modals on outside click
     window.onclick = function (event) {
         if (event.target == detailsModal) {
@@ -852,6 +935,9 @@
         }
         if (event.target == registerModal) {
             closeRegisterModal();
+        }
+        if (event.target == addEventModal) {
+            closeAddEventModal();
         }
     }
 </script>

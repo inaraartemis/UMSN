@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Students - Admin Panel{% endblock %}
+{% block page_title %}Manage Students{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="panel-header">
+        <h3><i class="fas fa-user-graduate"></i> Student List</h3>
+        <div class="panel-actions">
+            <a href="{{ url_for('admin_add_user') }}" class="btn btn-primary">Add New Student</a>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Roll No</th>
+                    <th>Full Name</th>
+                    <th>Program</th>
+                    <th>Semester</th>
+                    <th>CGPA</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.student_id }}</td>
+                    <td>{{ student.full_name }}</td>
+                    <td>{{ student.program }}</td>
+                    <td>{{ student.semester }}</td>
+                    <td><span class="badge badge-info">{{ student.cgpa }}</span></td>
+                    <td>
+                        <a href="{{ url_for('admin_student_detail', student_id=student.id) }}" class="btn-icon"
+                            title="View Report">
+                            <i class="fas fa-file-alt"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">No students found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .admin-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: var(--glass-shadow);
+    }
+
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .admin-table th {
+        background: rgba(255, 255, 255, 0.05);
+        text-align: left;
+        padding: 12px 15px;
+        color: var(--text-primary);
+        font-weight: 600;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .admin-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--glass-border);
+        color: var(--text-secondary);
+    }
+
+    .badge-info {
+        background: #4361ee;
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+
+    .btn-icon {
+        color: var(--primary-light);
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}

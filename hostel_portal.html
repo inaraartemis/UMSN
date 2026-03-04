@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Hostel | Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(14, 165, 233, 0.4);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .animate-in {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        input {
+            background: rgba(2, 6, 23, 0.5) !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            color: white !important;
+        }
+
+        input:focus {
+            border-color: #0ea5e9 !important;
+            ring: 2px #0ea5e922 !important;
+            outline: none !important;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen overflow-x-hidden">
+
+    <!-- LOGIN SECTION -->
+    <section id="login-section" class="min-h-screen flex items-center justify-center p-6 animate-in">
+        <div class="max-w-md w-full glass p-10 rounded-[2.5rem] shadow-2xl relative">
+            <div
+                class="absolute -top-12 left-1/2 -translate-x-1/2 p-5 bg-sky-600 rounded-3xl shadow-2xl shadow-sky-600/30 ring-8 ring-slate-950">
+                <i data-lucide="shield-check" class="w-10 h-10 text-white"></i>
+            </div>
+
+            <div class="text-center mt-6 mb-10">
+                <h1 class="text-3xl font-extrabold gradient-text">Portal Login</h1>
+                <p class="text-slate-500 text-sm mt-2">Enter credentials to manage your hostel profile</p>
+            </div>
+
+            <div id="login-error"
+                class="hidden mb-6 p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-2xl text-center font-bold tracking-wide">
+            </div>
+
+            <form id="login-form" class="space-y-5">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 ml-1 uppercase tracking-widest">Email Address</label>
+                    <input type="email" id="email" required placeholder="admin@hostel.com"
+                        class="w-full px-5 py-4 rounded-2xl transition-all">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-400 ml-1 uppercase tracking-widest">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••"
+                        class="w-full px-5 py-4 rounded-2xl transition-all">
+                </div>
+                <button type="submit" id="login-btn"
+                    class="w-full py-5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-2xl transition-all shadow-xl shadow-sky-600/20 active:scale-95 flex items-center justify-center gap-2">
+                    <span>Sign In to Portal</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </form>
+
+            <div
+                class="mt-8 text-center bg-slate-900/40 p-5 rounded-3xl border border-white/5 lowercase text-[10px] tracking-widest text-slate-500 font-bold">
+                admin: admin@hostel.com (admin123)<br>
+                student: student@hostel.com (student123)
+            </div>
+        </div>
+    </section>
+
+    <!-- DASHBOARD SECTION (Initially Hidden) -->
+    <section id="dashboard-section" class="hidden min-h-screen flex flex-col lg:flex-row">
+        <!-- Sidebar -->
+        <aside
+            class="lg:w-72 glass lg:m-4 rounded-[2rem] p-8 flex flex-col sticky top-0 h-[calc(100vh-2rem)] border-white/5 shadow-2xl">
+            <div class="flex items-center gap-3 mb-10">
+                <div class="p-2.5 bg-sky-600 rounded-xl">
+                    <i data-lucide="layout-grid" class="w-5 h-5 text-white"></i>
+                </div>
+                <span class="font-black text-xl tracking-tight">SmartHostel</span>
+            </div>
+
+            <nav class="flex-1 space-y-2">
+                <button
+                    class="w-full text-left flex items-center gap-3 px-5 py-4 bg-sky-500/10 text-sky-400 rounded-2xl border border-sky-500/20">
+                    <i data-lucide="pie-chart" class="w-5 h-5"></i>
+                    <span class="font-bold">Dashboard</span>
+                </button>
+                <button
+                    class="w-full text-left flex items-center gap-3 px-5 py-4 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all">
+                    <i data-lucide="bed" class="w-5 h-5"></i>
+                    <span class="font-bold">Rooms</span>
+                </button>
+                <button
+                    class="w-full text-left flex items-center gap-3 px-5 py-4 text-slate-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all">
+                    <i data-lucide="alert-octagon" class="w-5 h-5"></i>
+                    <span class="font-bold">Complaints</span>
+                </button>
+            </nav>
+
+            <div class="mt-auto pt-6">
+                <div class="p-5 bg-indigo-600/10 border border-indigo-500/20 rounded-2xl mb-4">
+                    <p class="text-[10px] text-indigo-400 font-black uppercase mb-1">Active User</p>
+                    <p id="user-name-display" class="font-bold text-sm truncate uppercase tracking-wide">Loading...</p>
+                </div>
+                <button onclick="handleLogout()"
+                    class="w-full py-4 text-rose-400 hover:bg-rose-500/10 rounded-2xl font-bold transition-all border border-transparent hover:border-rose-500/20 flex items-center justify-center gap-2">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 lg:p-12 overflow-y-auto">
+            <div class="max-w-6xl mx-auto space-y-12 animate-in">
+                <header class="flex justify-between items-end">
+                    <div>
+                        <h2 class="text-4xl font-black text-white mb-2">Hostel Insight <span
+                                class="text-sky-500">.</span></h2>
+                        <p class="text-slate-500 font-medium">Real-time occupancy and performance analytics.</p>
+                    </div>
+                    <div id="server-status"
+                        class="px-5 py-2.5 glass rounded-full text-[10px] font-black tracking-[0.2em] text-emerald-500 flex items-center gap-2">
+                        <span
+                            class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+                        BACKEND LIVE
+                    </div>
+                </header>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="stats-container">
+                    <div class="glass p-8 rounded-[2rem] relative overflow-hidden group">
+                        <div
+                            class="absolute -right-6 -bottom-6 w-32 h-32 bg-sky-500/5 blur-3xl group-hover:bg-sky-500/10 transition-all duration-700">
+                        </div>
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-3.5 bg-sky-600/10 rounded-2xl text-sky-500"><i data-lucide="users"
+                                    class="w-6 h-6"></i></div>
+                            <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest">Occupancy</h3>
+                        </div>
+                        <p id="stat-occupancy" class="text-4xl font-black text-white">0%</p>
+                        <p id="stat-beds" class="text-[10px] text-slate-500 font-bold mt-2 uppercase tracking-wide">
+                            Loading...</p>
+                    </div>
+
+                    <div class="glass p-8 rounded-[2rem] relative overflow-hidden group">
+                        <div
+                            class="absolute -right-6 -bottom-6 w-32 h-32 bg-emerald-500/5 blur-3xl group-hover:bg-emerald-500/10 transition-all duration-700">
+                        </div>
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-3.5 bg-emerald-600/10 rounded-2xl text-emerald-500"><i
+                                    data-lucide="dollar-sign" class="w-6 h-6"></i></div>
+                            <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest">Revenue</h3>
+                        </div>
+                        <p id="stat-revenue" class="text-4xl font-black text-white">$0</p>
+                        <p id="stat-pending" class="text-[10px] text-slate-500 font-bold mt-2 uppercase tracking-wide">
+                            Loading...</p>
+                    </div>
+
+                    <div class="glass p-8 rounded-[2rem] relative overflow-hidden group">
+                        <div
+                            class="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/5 blur-3xl group-hover:bg-amber-500/10 transition-all duration-700">
+                        </div>
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-3.5 bg-amber-600/10 rounded-2xl text-amber-500"><i data-lucide="ticket"
+                                    class="w-6 h-6"></i></div>
+                            <h3 class="text-xs font-black text-slate-500 uppercase tracking-widest">Tickets</h3>
+                        </div>
+                        <p id="stat-complaints" class="text-4xl font-black text-white">0</p>
+                        <p class="text-[10px] text-slate-500 font-bold mt-2 uppercase tracking-wide">Open Support
+                            Tickets</p>
+                    </div>
+                </div>
+
+                <!-- Recent Complaints Table -->
+                <div class="glass rounded-[2.5rem] p-10">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-xl font-bold flex items-center gap-3">
+                            <i data-lucide="activity" class="text-sky-500"></i>
+                            Recent Complaints activity
+                        </h3>
+                        <button class="text-xs font-bold text-sky-500 hover:text-sky-400">View All Tasks</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr
+                                    class="text-left text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-white/5">
+                                    <th class="pb-6 px-4">Subject</th>
+                                    <th class="pb-6 px-4">Priority</th>
+                                    <th class="pb-6 px-4">Status</th>
+                                    <th class="pb-6 px-4">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="complaints-body">
+                                <tr>
+                                    <td colspan="4" class="py-12 text-center text-slate-500 font-medium italic">Loading
+                                        dashboard activity...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <script>
+        const API_BASE = "http://localhost:8000";
+        let currentUser = null;
+
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Check for existing session
+        window.onload = () => {
+            const saved = localStorage.getItem('hostel_session');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                showDashboard();
+            }
+        };
+
+        // Handle Login
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('login-btn');
+            const errorDiv = document.getElementById('login-error');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Authenticating...';
+            lucide.createIcons();
+            errorDiv.classList.add('hidden');
+
+            try {
+                const formData = new FormData();
+                formData.append('username', email);
+                formData.append('password', password);
+
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error("Invalid email or password");
+
+                const { access_token } = await response.json();
+
+                // Fetch Profile
+                const profileRes = await fetch(`${API_BASE}/users/me`, {
+                    headers: { 'Authorization': `Bearer ${access_token}` }
+                });
+                const profileData = await profileRes.json();
+
+                currentUser = { ...profileData, token: access_token };
+                localStorage.setItem('hostel_session', JSON.stringify(currentUser));
+
+                showDashboard();
+            } catch (err) {
+                errorDiv.innerText = err.message;
+                errorDiv.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Sign In to Portal</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
+                lucide.createIcons();
+            }
+        };
+
+        function showDashboard() {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            document.getElementById('user-name-display').innerText = currentUser.name;
+            fetchAnalytics();
+            fetchComplaints();
+        }
+
+        async function fetchAnalytics() {
+            if (currentUser.role !== 'admin' && currentUser.role !== 'warden') return;
+
+            try {
+                const headers = { 'Authorization': `Bearer ${currentUser.token}` };
+                const [occ, rev] = await Promise.all([
+                    fetch(`${API_BASE}/analytics/occupancy`, { headers }).then(r => r.json()),
+                    fetch(`${API_BASE}/analytics/revenue`, { headers }).then(r => r.json())
+                ]);
+
+                document.getElementById('stat-occupancy').innerText = `${occ.occupancy_rate.toFixed(1)}%`;
+                document.getElementById('stat-beds').innerText = `${occ.occupied_beds} / ${occ.total_capacity} Beds occupied`;
+                document.getElementById('stat-revenue').innerText = `$${rev.total_revenue_collected.toLocaleString()}`;
+                document.getElementById('stat-pending').innerText = `$${rev.pending_revenue.toLocaleString()} Pending dues`;
+            } catch (err) {
+                console.error("Stats fetch failed", err);
+            }
+        }
+
+        async function fetchComplaints() {
+            try {
+                const headers = { 'Authorization': `Bearer ${currentUser.token}` };
+                const res = await fetch(`${API_BASE}/complaints/`, { headers });
+                const data = await res.json();
+
+                const tbody = document.getElementById('complaints-body');
+                tbody.innerHTML = '';
+
+                const complaints = data.slice(0, 5);
+                if (complaints.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="py-12 text-center text-slate-600 italic">No tickets found.</td></tr>';
+                    return;
+                }
+
+                document.getElementById('stat-complaints').innerText = data.length;
+
+                complaints.forEach(c => {
+                    const row = document.createElement('tr');
+                    row.className = "border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group";
+                    row.innerHTML = `
+                        <td class="py-6 px-4">
+                            <p class="font-bold text-slate-200 group-hover:text-sky-400 transition-colors">${c.title}</p>
+                            <p class="text-[10px] text-slate-500 mt-1 line-clamp-1">${c.description}</p>
+                        </td>
+                        <td class="py-6 px-4">
+                            <span class="text-[9px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${c.priority === 'high' ? 'bg-rose-500/10 text-rose-500 ring-1 ring-rose-500/20' :
+                            c.priority === 'medium' ? 'bg-amber-500/10 text-amber-500 ring-1 ring-amber-500/20' :
+                                'bg-sky-500/10 text-sky-500 ring-1 ring-sky-500/20'
+                        }">${c.priority}</span>
+                        </td>
+                        <td class="py-6 px-4">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter italic">${c.status}</span>
+                        </td>
+                        <td class="py-6 px-4 text-xs text-slate-500 font-medium">
+                            ${new Date(c.created_at).toLocaleDateString()}
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                console.error("Complaints fetch failed", err);
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('hostel_session');
+            window.location.reload();
+        }
+    </script>
+</body>
+
+</html>
