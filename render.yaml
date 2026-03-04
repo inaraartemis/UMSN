@@ -18,8 +18,8 @@ services:
   # Frontend Static Site
   - type: web
     name: abode-ui
-    runtime: static
-    publishDir: hostel_ui
+    env: static
+    staticPublishDir: hostel_ui
 
 databases:
   # PostgreSQL Database
