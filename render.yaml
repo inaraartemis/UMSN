@@ -19,7 +19,7 @@ services:
   - type: web
     name: abode-ui
     env: static
-    staticPublishDir: hostel_ui
+    publishDir: hostel_ui
 
 databases:
   # PostgreSQL Database
