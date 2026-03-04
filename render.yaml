@@ -15,12 +15,6 @@ services:
       - key: PROJECT_NAME
         value: Abode Residential
 
-  # Frontend Static Site
-  - type: web
-    name: abode-ui
-    env: static
-    publishDir: hostel_ui
-
 databases:
   # PostgreSQL Database
   - name: abode-db
